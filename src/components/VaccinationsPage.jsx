@@ -1,4 +1,4 @@
-import RecordListPage from "./RecordListPage.jsx";
+import RecordListPage from "./RecordlistPage.jsx";
 
 export default function VaccinationsPage({ tenant, onBack, onAdd }) {
   const vaccinations = tenant?.data?.vaccinations || [];
