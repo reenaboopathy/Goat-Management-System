@@ -1,5 +1,5 @@
 import { X, Crown } from "lucide-react";
-import { NAV_ITEMS } from "../constants/navigation.js";
+import { NAV_ITEMS } from "../constants/Navigation.js";
 
 export default function Sidebar({
   open,
