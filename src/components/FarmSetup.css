@@ -1,0 +1,1234 @@
+/* =========================================================
+   FARM SETUP PAGE
+========================================================= */
+
+.farm-setup-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(37, 99, 235, 0.08),
+      transparent 30%
+    ),
+    linear-gradient(
+      180deg,
+      #f8faff 0%,
+      #eef4ff 100%
+    );
+  color: #0f172a;
+  padding-bottom: 50px;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.farm-setup-header {
+  min-height: 88px;
+  padding: 18px 28px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.05);
+  box-sizing: border-box;
+}
+
+.farm-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.farm-header-left > div:last-child {
+  min-width: 0;
+}
+
+.farm-header-left > div:last-child > span {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 1.6px;
+  font-weight: 800;
+  color: #2563eb;
+}
+
+.farm-header-left h1 {
+  margin: 2px 0 0;
+  font-size: 23px;
+  line-height: 1.2;
+}
+
+.farm-header-left p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.farm-back-btn {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 13px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #334155;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.farm-back-btn:hover {
+  background: #eff6ff;
+  color: #2563eb;
+  transform: translateX(-2px);
+}
+
+.farm-header-icon {
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+.farm-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.farm-live-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 13px;
+  border-radius: 999px;
+  background: #ecfdf5;
+  color: #047857;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.farm-live-pill span {
+  width: 7px;
+  height: 7px;
+  min-width: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
+}
+
+.farm-save-btn {
+  min-height: 42px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(
+    135deg,
+    #2563eb,
+    #1d4ed8
+  );
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.2);
+  transition: all 0.2s ease;
+}
+
+.farm-save-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.25);
+}
+
+.farm-save-btn:active {
+  transform: translateY(0);
+}
+
+.farm-save-message {
+  position: fixed;
+  right: 24px;
+  top: 105px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 17px;
+  border-radius: 13px;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  box-shadow: 0 15px 35px rgba(15, 23, 42, 0.12);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   CONTAINER
+========================================================= */
+
+.farm-setup-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 20px 50px;
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.farm-control-hero {
+  padding: 30px;
+  border-radius: 25px;
+  background:
+    radial-gradient(
+      circle at 90% 10%,
+      rgba(96, 165, 250, 0.3),
+      transparent 30%
+    ),
+    linear-gradient(
+      135deg,
+      #0f2f73,
+      #1d4ed8
+    );
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  box-shadow: 0 25px 55px rgba(30, 64, 175, 0.2);
+  box-sizing: border-box;
+}
+
+.farm-control-hero > div:first-child {
+  min-width: 0;
+}
+
+.farm-hero-badge {
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  font-size: 10px;
+  letter-spacing: 1.1px;
+  font-weight: 800;
+}
+
+.farm-control-hero h2 {
+  margin: 15px 0 7px;
+  font-size: 32px;
+  line-height: 1.15;
+}
+
+.farm-control-hero p {
+  max-width: 650px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+.farm-health-score {
+  min-width: 230px;
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.farm-score-ring {
+  width: 88px;
+  height: 88px;
+  min-width: 88px;
+  border-radius: 50%;
+  border: 7px solid rgba(255, 255, 255, 0.18);
+  outline: 3px solid rgba(255, 255, 255, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.farm-score-ring strong {
+  font-size: 25px;
+  line-height: 1;
+}
+
+.farm-score-ring span {
+  margin-top: 4px;
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.farm-health-score > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.farm-health-score > div:last-child span {
+  font-size: 9px;
+  letter-spacing: 1px;
+  opacity: 0.7;
+}
+
+.farm-health-score > div:last-child strong {
+  font-size: 16px;
+}
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.farm-stats-grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.farm-stat-card {
+  min-width: 0;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+  box-sizing: border-box;
+}
+
+.farm-stat-icon {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  background: #eff6ff;
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+.farm-stat-content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.farm-stat-content span {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.farm-stat-content strong {
+  margin-top: 2px;
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.farm-stat-content small {
+  margin-top: 3px;
+  color: #94a3b8;
+  font-size: 10px;
+}
+
+/* =========================================================
+   TABS
+========================================================= */
+
+.farm-tab-bar {
+  margin-top: 24px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 6px;
+  display: flex;
+  gap: 5px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  box-sizing: border-box;
+}
+
+.farm-tab-bar::-webkit-scrollbar {
+  height: 4px;
+}
+
+.farm-tab-bar button {
+  border: none;
+  background: transparent;
+  color: #64748b;
+  padding: 11px 16px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.farm-tab-bar button:hover {
+  background: #f8fafc;
+  color: #2563eb;
+}
+
+.farm-tab-bar button.active {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.farm-content-grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.farm-panel {
+  min-width: 0;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.05);
+  box-sizing: border-box;
+}
+
+.farm-large-panel {
+  margin-top: 20px;
+}
+
+.farm-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.farm-panel-head > div:first-child {
+  min-width: 0;
+}
+
+.farm-panel-head > div:first-child > span {
+  display: block;
+  color: #2563eb;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+}
+
+.farm-panel-head h3 {
+  margin: 5px 0 5px;
+  font-size: 18px;
+}
+
+.farm-panel-head p {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.farm-panel-icon {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+/* =========================================================
+   ALERTS
+========================================================= */
+
+.farm-alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.farm-alert {
+  padding: 13px;
+  border-radius: 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+}
+
+.farm-alert.critical {
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #be123c;
+}
+
+.farm-alert.warning {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #b45309;
+}
+
+.farm-alert.info {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.farm-alert-icon {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.7);
+  flex-shrink: 0;
+}
+
+.farm-alert strong {
+  display: block;
+  font-size: 12px;
+}
+
+.farm-alert p {
+  margin: 3px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  opacity: 0.85;
+}
+
+.farm-no-alert {
+  padding: 35px 15px;
+  border-radius: 15px;
+  background: #ecfdf5;
+  color: #047857;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 7px;
+}
+
+.farm-no-alert strong {
+  font-size: 13px;
+}
+
+.farm-no-alert span {
+  font-size: 11px;
+}
+
+/* =========================================================
+   DEVICE
+========================================================= */
+
+.farm-device-card {
+  padding: 15px;
+  border-radius: 15px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  box-sizing: border-box;
+}
+
+.farm-device-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.farm-device-dot {
+  width: 10px;
+  height: 10px;
+  min-width: 10px;
+  background: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.1);
+}
+
+.farm-device-status > div:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.farm-device-status strong {
+  font-size: 13px;
+}
+
+.farm-device-status span {
+  margin-top: 3px;
+  color: #94a3b8;
+  font-size: 10px;
+}
+
+.farm-device-status b {
+  color: #047857;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.farm-device-info {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #e2e8f0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.farm-device-info div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.farm-device-info span {
+  color: #94a3b8;
+  font-size: 10px;
+}
+
+.farm-device-info strong {
+  font-size: 12px;
+}
+
+.farm-outline-btn {
+  width: 100%;
+  margin-top: 14px;
+  padding: 11px 13px;
+  border-radius: 11px;
+  border: 1px solid #dbeafe;
+  background: #eff6ff;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.farm-outline-btn:hover {
+  background: #dbeafe;
+}
+
+/* =========================================================
+   HERD
+========================================================= */
+
+.farm-herd-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 9px;
+}
+
+.farm-herd-grid > div {
+  padding: 15px 8px;
+  text-align: center;
+  background: #f8fafc;
+  border-radius: 13px;
+}
+
+.farm-herd-grid strong {
+  display: block;
+  font-size: 22px;
+}
+
+.farm-herd-grid span {
+  display: block;
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 10px;
+}
+
+.farm-shed-summary {
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.farm-shed-summary strong {
+  font-size: 30px;
+}
+
+.farm-shed-summary span {
+  color: #64748b;
+  font-size: 12px;
+}
+
+/* =========================================================
+   FORMS
+========================================================= */
+
+.farm-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.farm-form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.farm-form-grid input,
+.farm-form-grid textarea,
+.farm-form-grid select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #dbe2ea;
+  border-radius: 11px;
+  padding: 12px 13px;
+  outline: none;
+  background: #ffffff;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.farm-form-grid textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.farm-form-grid input:focus,
+.farm-form-grid textarea:focus,
+.farm-form-grid select:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.farm-form-grid input:disabled,
+.farm-form-grid textarea:disabled,
+.farm-form-grid select:disabled {
+  background: #f8fafc;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+.farm-full-field {
+  grid-column: 1 / -1;
+}
+
+.farm-form-actions {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #eef2f7;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.farm-small-btn {
+  border: 1px solid #dbeafe;
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 9px 13px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.farm-small-btn:hover {
+  background: #dbeafe;
+}
+
+/* =========================================================
+   REMINDERS
+========================================================= */
+
+.farm-reminder-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.farm-reminder-row {
+  padding: 17px 0;
+  border-bottom: 1px solid #eef2f7;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.farm-reminder-row:last-child {
+  border-bottom: none;
+}
+
+.farm-reminder-icon {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 13px;
+  background: #eff6ff;
+  color: #2563eb;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.farm-reminder-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.farm-reminder-info strong {
+  font-size: 13px;
+}
+
+.farm-reminder-info span {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.farm-reminder-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-shrink: 0;
+}
+
+.farm-reminder-controls label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #64748b;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.farm-reminder-controls input {
+  width: 55px;
+  box-sizing: border-box;
+  border: 1px solid #dbe2ea;
+  border-radius: 8px;
+  padding: 7px;
+  text-align: center;
+  outline: none;
+}
+
+.farm-toggle {
+  width: 43px;
+  height: 24px;
+  border: none;
+  border-radius: 999px;
+  background: #cbd5e1;
+  padding: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.farm-toggle span {
+  display: block;
+  width: 18px;
+  height: 18px;
+  background: #ffffff;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.farm-toggle.active {
+  background: #2563eb;
+}
+
+.farm-toggle.active span {
+  transform: translateX(19px);
+}
+
+.farm-reminder-note {
+  margin-top: 20px;
+  padding: 14px;
+  border-radius: 13px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  display: flex;
+  gap: 10px;
+}
+
+.farm-reminder-note > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.farm-reminder-note strong {
+  font-size: 11px;
+}
+
+.farm-reminder-note span {
+  font-size: 10px;
+  line-height: 1.5;
+  color: #64748b;
+}
+
+/* =========================================================
+   PREFERENCES
+========================================================= */
+
+.farm-preference-row {
+  margin-top: 12px;
+  padding: 15px;
+  border: 1px solid #eef2f7;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+.farm-preference-icon {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #2563eb;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.farm-preference-row > div:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.farm-preference-row strong {
+  font-size: 12px;
+}
+
+.farm-preference-row span {
+  color: #64748b;
+  font-size: 10px;
+}
+
+.farm-check {
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   GLOBAL SAFETY
+========================================================= */
+
+.farm-setup-page *,
+.farm-setup-page *::before,
+.farm-setup-page *::after {
+  box-sizing: border-box;
+}
+
+.farm-setup-page button,
+.farm-setup-page input,
+.farm-setup-page textarea,
+.farm-setup-page select {
+  font-family: inherit;
+}
+
+.farm-setup-page button:focus-visible,
+.farm-setup-page input:focus-visible,
+.farm-setup-page textarea:focus-visible,
+.farm-setup-page select:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   RESPONSIVE - 900px
+========================================================= */
+
+@media (max-width: 900px) {
+  .farm-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .farm-content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .farm-control-hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .farm-control-hero > div:first-child {
+    width: 100%;
+  }
+
+  .farm-health-score {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - 680px
+========================================================= */
+
+@media (max-width: 680px) {
+  .farm-setup-header {
+    min-height: auto;
+    padding: 14px 15px;
+    align-items: flex-start;
+  }
+
+  .farm-header-actions {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .farm-live-pill {
+    display: none;
+  }
+
+  .farm-header-left p {
+    display: none;
+  }
+
+  .farm-setup-container {
+    padding: 18px 12px 40px;
+  }
+
+  .farm-control-hero {
+    padding: 22px;
+    border-radius: 20px;
+  }
+
+  .farm-control-hero h2 {
+    font-size: 26px;
+  }
+
+  .farm-control-hero p {
+    font-size: 13px;
+  }
+
+  .farm-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .farm-stat-card {
+    padding: 13px;
+  }
+
+  .farm-stat-icon {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+  }
+
+  .farm-stat-content strong {
+    font-size: 20px;
+  }
+
+  .farm-tab-bar {
+    border-radius: 13px;
+  }
+
+  .farm-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .farm-full-field {
+    grid-column: auto;
+  }
+
+  .farm-reminder-row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .farm-reminder-controls {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .farm-herd-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .farm-panel {
+    padding: 17px;
+    border-radius: 17px;
+  }
+
+  .farm-save-message {
+    left: 15px;
+    right: 15px;
+    top: 90px;
+  }
+
+  .farm-device-info {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - 460px
+========================================================= */
+
+@media (max-width: 460px) {
+  .farm-header-left {
+    gap: 9px;
+  }
+
+  .farm-header-left h1 {
+    font-size: 18px;
+  }
+
+  .farm-header-icon {
+    display: none;
+  }
+
+  .farm-back-btn {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+  }
+
+  .farm-header-left > div:last-child > span {
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+
+  .farm-save-btn {
+    min-height: 38px;
+    padding: 0 11px;
+    font-size: 11px;
+  }
+
+  .farm-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .farm-health-score {
+    min-width: 0;
+    padding: 14px;
+  }
+
+  .farm-score-ring {
+    width: 72px;
+    height: 72px;
+    min-width: 72px;
+    border-width: 6px;
+  }
+
+  .farm-score-ring strong {
+    font-size: 21px;
+  }
+
+  .farm-reminder-controls {
+    justify-content: space-between;
+  }
+
+  .farm-device-info {
+    grid-template-columns: 1fr;
+  }
+
+  .farm-panel-head {
+    gap: 10px;
+  }
+
+  .farm-panel-head h3 {
+    font-size: 16px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - 360px
+========================================================= */
+
+@media (max-width: 360px) {
+  .farm-setup-header {
+    padding: 12px 10px;
+  }
+
+  .farm-header-left h1 {
+    font-size: 16px;
+  }
+
+  .farm-save-btn span {
+    display: none;
+  }
+
+  .farm-control-hero {
+    padding: 18px;
+  }
+
+  .farm-control-hero h2 {
+    font-size: 23px;
+  }
+
+  .farm-panel {
+    padding: 14px;
+  }
+
+  .farm-reminder-controls {
+    gap: 8px;
+  }
+}
