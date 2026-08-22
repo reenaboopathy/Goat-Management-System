@@ -85,7 +85,7 @@ const saveTenantData = (tenant) => {
       try {
         localStorage.setItem(key, serialized);
       } catch {
-        // Ignore individual storage errors
+        // Ignore storage errors
       }
     });
 
@@ -283,8 +283,12 @@ const getGoatWeight = (goat) => {
       )
       .sort(
         (a, b) =>
-          new Date(b.date || 0).getTime() -
-          new Date(a.date || 0).getTime()
+          new Date(
+            b.date || 0
+          ).getTime() -
+          new Date(
+            a.date || 0
+          ).getTime()
       );
 
     if (valid.length > 0) {
@@ -347,8 +351,6 @@ const extractGoats = (tenant) => {
     tenant.goatData,
     tenant.data?.goats,
     tenant.data?.goatList,
-
-    // Compatibility with existing data structure.
     tenant.farm?.goats,
     tenant.farmData?.goats,
   ];
@@ -383,7 +385,6 @@ const extractMedicalRecords = (tenant) => {
     tenant.data?.medical_records,
     tenant.data?.medicalHistory,
 
-    // Compatibility paths.
     tenant.farm?.medicalRecords,
     tenant.farmData?.medicalRecords,
   ];
@@ -574,7 +575,7 @@ function MedicalStatCard({
 }
 
 /* =========================================================
-   MEDICAL EMPTY STATE
+   EMPTY STATE
 ========================================================= */
 
 function MedicalEmpty({
@@ -618,6 +619,20 @@ function MedicalRecordModal({
   onSave,
 }) {
   const editing = Boolean(initialRecord);
+
+  const initialGoat = useMemo(() => {
+    if (!initialRecord?._goatId) {
+      return null;
+    }
+
+    return (
+      goats.find(
+        (goat) =>
+          String(goat._medicalGoatId) ===
+          String(initialRecord._goatId)
+      ) || null
+    );
+  }, [goats, initialRecord]);
 
   const [form, setForm] = useState(() => ({
     goatId:
@@ -663,7 +678,22 @@ function MedicalRecordModal({
       initialRecord?._notes || "",
   }));
 
-  const [error, setError] = useState("");
+  /* =======================================================
+     SEARCHABLE GOAT STATE
+  ======================================================= */
+
+  const [goatSearch, setGoatSearch] =
+    useState(
+      initialGoat
+        ? `${initialGoat._name} — Tag ${initialGoat._tag}`
+        : ""
+    );
+
+  const [showGoatResults, setShowGoatResults] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
 
   const update = (key, value) => {
     setForm((prev) => ({
@@ -671,6 +701,101 @@ function MedicalRecordModal({
       [key]: value,
     }));
   };
+
+  /* =======================================================
+     SEARCH GOATS
+
+     IMPORTANT:
+     Empty search = NO GOATS
+     Typed search = matching goats only
+  ======================================================= */
+
+  const filteredGoats = useMemo(() => {
+    const query =
+      normalizeText(goatSearch);
+
+    // DO NOT SHOW ALL GOATS WHEN INPUT IS EMPTY
+    if (!query) {
+      return [];
+    }
+
+    return goats.filter((goat) => {
+      return (
+        normalizeText(
+          goat._name
+        ).includes(query) ||
+        normalizeText(
+          goat._tag
+        ).includes(query) ||
+        normalizeText(
+          goat._breed
+        ).includes(query)
+      );
+    });
+  }, [goats, goatSearch]);
+
+  /* =======================================================
+     CLOSE GOAT SEARCH OUTSIDE
+  ======================================================= */
+
+  useEffect(() => {
+    const handleOutsideClick = (
+      event
+    ) => {
+      if (
+        !event.target.closest(
+          ".medical-goat-search-wrapper"
+        )
+      ) {
+        setShowGoatResults(false);
+      }
+    };
+
+    document.addEventListener(
+      "mousedown",
+      handleOutsideClick
+    );
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        handleOutsideClick
+      );
+    };
+  }, []);
+
+  /* =======================================================
+     SELECT GOAT
+  ======================================================= */
+
+  const selectGoat = (goat) => {
+    update(
+      "goatId",
+      goat._medicalGoatId
+    );
+
+    setGoatSearch(
+      `${goat._name} — Tag ${goat._tag}`
+    );
+
+    setShowGoatResults(false);
+
+    setError("");
+  };
+
+  /* =======================================================
+     CLEAR GOAT
+  ======================================================= */
+
+  const clearGoat = () => {
+    setGoatSearch("");
+    update("goatId", "");
+    setShowGoatResults(false);
+  };
+
+  /* =======================================================
+     SUBMIT
+  ======================================================= */
 
   const submit = () => {
     setError("");
@@ -707,7 +832,8 @@ function MedicalRecordModal({
       return;
     }
 
-    const now = new Date().toISOString();
+    const now =
+      new Date().toISOString();
 
     const payload = {
       ...(initialRecord || {}),
@@ -716,7 +842,8 @@ function MedicalRecordModal({
         initialRecord?._id ||
         createId("medical"),
 
-      goatId: goat._medicalGoatId,
+      goatId:
+        goat._medicalGoatId,
 
       goatName: goat._name,
 
@@ -746,7 +873,8 @@ function MedicalRecordModal({
 
       status: form.status,
 
-      notes: form.notes.trim(),
+      notes:
+        form.notes.trim(),
 
       updatedAt: now,
 
@@ -771,6 +899,10 @@ function MedicalRecordModal({
           event.stopPropagation()
         }
       >
+        {/* =================================================
+            MODAL HEADER
+        ================================================= */}
+
         <div className="medical-modal-head">
           <div>
             <span className="medical-eyebrow">
@@ -784,8 +916,9 @@ function MedicalRecordModal({
             </h2>
 
             <p>
-              Save actual health information
-              for an existing goat.
+              Save actual health
+              information for an
+              existing goat.
             </p>
           </div>
 
@@ -798,6 +931,10 @@ function MedicalRecordModal({
           </button>
         </div>
 
+        {/* =================================================
+            ERROR
+        ================================================= */}
+
         {error && (
           <div className="medical-error">
             <AlertCircle size={17} />
@@ -805,38 +942,197 @@ function MedicalRecordModal({
           </div>
         )}
 
+        {/* =================================================
+            FORM
+        ================================================= */}
+
         <div className="medical-form-grid">
-          <label>
+
+          {/* ===============================================
+              SEARCHABLE GOAT
+          =============================================== */}
+
+          <label className="medical-goat-search-field">
             Goat *
 
-            <select
-              value={form.goatId}
-              onChange={(e) =>
-                update(
-                  "goatId",
-                  e.target.value
-                )
-              }
-            >
-              <option value="">
-                Select goat
-              </option>
+            <div className="medical-goat-search-wrapper">
+              <Search
+                size={17}
+                className="medical-goat-search-icon"
+              />
 
-              {goats.map((goat) => (
-                <option
-                  key={
-                    goat._medicalGoatId
+              <input
+                type="text"
+                value={goatSearch}
+                placeholder="Search goat name or tag..."
+                autoComplete="off"
+                onFocus={() => {
+                  // Only open results if user has typed something
+                  if (goatSearch.trim()) {
+                    setShowGoatResults(true);
                   }
-                  value={
-                    goat._medicalGoatId
+                }}
+                onChange={(e) => {
+                  const value =
+                    e.target.value;
+
+                  setGoatSearch(value);
+
+                  // Show search results ONLY when user types
+                  if (value.trim()) {
+                    setShowGoatResults(true);
+                  } else {
+                    setShowGoatResults(false);
                   }
+
+                  /*
+                   * If user edits selected text,
+                   * remove previous goat selection.
+                   */
+                  if (form.goatId) {
+                    const selectedGoat =
+                      goats.find(
+                        (goat) =>
+                          String(
+                            goat._medicalGoatId
+                          ) ===
+                          String(
+                            form.goatId
+                          )
+                      );
+
+                    const selectedText =
+                      selectedGoat
+                        ? `${selectedGoat._name} — Tag ${selectedGoat._tag}`
+                        : "";
+
+                    if (
+                      value !==
+                      selectedText
+                    ) {
+                      update(
+                        "goatId",
+                        ""
+                      );
+                    }
+                  }
+                }}
+              />
+
+              {goatSearch && (
+                <button
+                  type="button"
+                  className="medical-goat-search-clear"
+                  title="Clear goat"
+                  onClick={clearGoat}
                 >
-                  {goat._name} — Tag{" "}
-                  {goat._tag}
-                </option>
-              ))}
-            </select>
+                  <X size={15} />
+                </button>
+              )}
+
+              {/* =================================================
+                  IMPORTANT:
+                  Results are rendered ONLY when:
+                  1. showGoatResults = true
+                  2. goatSearch has text
+              ================================================= */}
+
+              {showGoatResults &&
+                goatSearch.trim() && (
+                  <div className="medical-goat-results">
+
+                    {filteredGoats.length ===
+                    0 ? (
+                      <div className="medical-goat-no-result">
+                        <PawPrint size={18} />
+
+                        <span>
+                          No goat found
+                        </span>
+                      </div>
+                    ) : (
+                      filteredGoats.map(
+                        (goat) => {
+                          const selected =
+                            String(
+                              form.goatId
+                            ) ===
+                            String(
+                              goat._medicalGoatId
+                            );
+
+                          return (
+                            <button
+                              type="button"
+                              key={
+                                goat._medicalGoatId
+                              }
+                              className={`medical-goat-result ${
+                                selected
+                                  ? "selected"
+                                  : ""
+                              }`}
+                              onClick={() =>
+                                selectGoat(
+                                  goat
+                                )
+                              }
+                            >
+                              <div className="medical-goat-result-avatar">
+                                {goat._photo ? (
+                                  <img
+                                    src={
+                                      goat._photo
+                                    }
+                                    alt={
+                                      goat._name
+                                    }
+                                  />
+                                ) : (
+                                  <PawPrint
+                                    size={17}
+                                  />
+                                )}
+                              </div>
+
+                              <div className="medical-goat-result-info">
+                                <strong>
+                                  {
+                                    goat._name
+                                  }
+                                </strong>
+
+                                <span>
+                                  Tag:{" "}
+                                  {
+                                    goat._tag
+                                  }
+                                  {" • "}
+                                  {
+                                    goat._breed
+                                  }
+                                </span>
+                              </div>
+
+                              {selected && (
+                                <Check
+                                  size={17}
+                                  className="medical-goat-result-check"
+                                />
+                              )}
+                            </button>
+                          );
+                        }
+                      )
+                    )}
+                  </div>
+                )}
+            </div>
           </label>
+
+          {/* ===============================================
+              MEDICAL TYPE
+          =============================================== */}
 
           <label>
             Medical Type
@@ -880,6 +1176,10 @@ function MedicalRecordModal({
             </select>
           </label>
 
+          {/* ===============================================
+              DATE
+          =============================================== */}
+
           <label>
             Date *
 
@@ -894,6 +1194,10 @@ function MedicalRecordModal({
               }
             />
           </label>
+
+          {/* ===============================================
+              STATUS
+          =============================================== */}
 
           <label>
             Health Status
@@ -929,11 +1233,17 @@ function MedicalRecordModal({
             </select>
           </label>
 
+          {/* ===============================================
+              DIAGNOSIS
+          =============================================== */}
+
           <label className="medical-full-field">
             Diagnosis / Health Issue *
 
             <input
-              value={form.diagnosis}
+              value={
+                form.diagnosis
+              }
               onChange={(e) =>
                 update(
                   "diagnosis",
@@ -944,11 +1254,17 @@ function MedicalRecordModal({
             />
           </label>
 
+          {/* ===============================================
+              TREATMENT
+          =============================================== */}
+
           <label>
             Treatment
 
             <input
-              value={form.treatment}
+              value={
+                form.treatment
+              }
               onChange={(e) =>
                 update(
                   "treatment",
@@ -959,11 +1275,17 @@ function MedicalRecordModal({
             />
           </label>
 
+          {/* ===============================================
+              MEDICINE
+          =============================================== */}
+
           <label>
             Medicine
 
             <input
-              value={form.medicine}
+              value={
+                form.medicine
+              }
               onChange={(e) =>
                 update(
                   "medicine",
@@ -974,11 +1296,17 @@ function MedicalRecordModal({
             />
           </label>
 
+          {/* ===============================================
+              VACCINE
+          =============================================== */}
+
           <label>
             Vaccine
 
             <input
-              value={form.vaccine}
+              value={
+                form.vaccine
+              }
               onChange={(e) =>
                 update(
                   "vaccine",
@@ -989,11 +1317,17 @@ function MedicalRecordModal({
             />
           </label>
 
+          {/* ===============================================
+              VETERINARIAN
+          =============================================== */}
+
           <label>
             Veterinarian
 
             <input
-              value={form.doctor}
+              value={
+                form.doctor
+              }
               onChange={(e) =>
                 update(
                   "doctor",
@@ -1004,12 +1338,18 @@ function MedicalRecordModal({
             />
           </label>
 
+          {/* ===============================================
+              NEXT DATE
+          =============================================== */}
+
           <label>
             Next Follow-up
 
             <input
               type="date"
-              value={form.nextDate}
+              value={
+                form.nextDate
+              }
               onChange={(e) =>
                 update(
                   "nextDate",
@@ -1019,12 +1359,18 @@ function MedicalRecordModal({
             />
           </label>
 
+          {/* ===============================================
+              NOTES
+          =============================================== */}
+
           <label className="medical-full-field">
             Notes
 
             <textarea
               rows="4"
-              value={form.notes}
+              value={
+                form.notes
+              }
               onChange={(e) =>
                 update(
                   "notes",
@@ -1035,6 +1381,10 @@ function MedicalRecordModal({
             />
           </label>
         </div>
+
+        {/* =================================================
+            ACTIONS
+        ================================================= */}
 
         <div className="medical-modal-actions">
           <button
@@ -1110,7 +1460,7 @@ export default function Medical({
   ] = useState(null);
 
   /* =======================================================
-     LOAD REAL DATA
+     LOAD DATA
   ======================================================= */
 
   const loadData = useCallback(() => {
@@ -1255,7 +1605,9 @@ export default function Medical({
           String(
             record._goatId
           ) ===
-            String(selectedGoatId);
+            String(
+              selectedGoatId
+            );
 
         return (
           matchesSearch &&
@@ -1354,7 +1706,7 @@ export default function Medical({
   }, [medicalRecords]);
 
   /* =======================================================
-     UPCOMING MEDICAL RECORDS
+     UPCOMING
   ======================================================= */
 
   const upcomingRecords = useMemo(() => {
@@ -1488,7 +1840,7 @@ export default function Medical({
     );
 
   /* =======================================================
-     DELETE MEDICAL RECORD
+     DELETE
   ======================================================= */
 
   const deleteMedicalRecord =
@@ -1586,9 +1938,7 @@ export default function Medical({
   return (
     <div className="medical-page">
 
-      {/* ===================================================
-          HEADER
-      =================================================== */}
+      {/* HEADER */}
 
       <header className="medical-header">
         <div className="medical-header-left">
@@ -1649,9 +1999,7 @@ export default function Medical({
         </div>
       </header>
 
-      {/* ===================================================
-          HERO
-      =================================================== */}
+      {/* HERO */}
 
       <section className="medical-hero">
 
@@ -1682,14 +2030,12 @@ export default function Medical({
 
             <span>
               <FileText size={15} />
-              {medicalRecords.length}{" "}
-              medical records
+              {medicalRecords.length} medical records
             </span>
 
             <span>
               <Syringe size={15} />
-              {statistics.vaccinations}{" "}
-              vaccinations
+              {statistics.vaccinations} vaccinations
             </span>
 
           </div>
@@ -1719,9 +2065,7 @@ export default function Medical({
 
       </section>
 
-      {/* ===================================================
-          STATS
-      =================================================== */}
+      {/* STATS */}
 
       <section className="medical-stats-grid">
 
@@ -1735,18 +2079,14 @@ export default function Medical({
         <MedicalStatCard
           icon={Syringe}
           label="Vaccinations"
-          value={
-            statistics.vaccinations
-          }
+          value={statistics.vaccinations}
           sub="Vaccination records"
         />
 
         <MedicalStatCard
           icon={Stethoscope}
           label="Treatments"
-          value={
-            statistics.treatments
-          }
+          value={statistics.treatments}
           sub="Treatment records"
         />
 
@@ -1767,17 +2107,13 @@ export default function Medical({
         <MedicalStatCard
           icon={PawPrint}
           label="Affected Goats"
-          value={
-            statistics.uniqueGoats
-          }
+          value={statistics.uniqueGoats}
           sub="Real goats"
         />
 
       </section>
 
-      {/* ===================================================
-          SEARCH
-      =================================================== */}
+      {/* SEARCH */}
 
       <section className="medical-panel">
 
@@ -1973,9 +2309,7 @@ export default function Medical({
 
       </section>
 
-      {/* ===================================================
-          UPCOMING
-      =================================================== */}
+      {/* UPCOMING */}
 
       {upcomingRecords.length > 0 && (
         <section className="medical-panel">
@@ -2056,9 +2390,7 @@ export default function Medical({
         </section>
       )}
 
-      {/* ===================================================
-          MEDICAL HISTORY TABLE
-      =================================================== */}
+      {/* MEDICAL HISTORY */}
 
       <section className="medical-panel">
 
@@ -2096,7 +2428,8 @@ export default function Medical({
             title="No goats available"
             description="Add goats from your Goat Management page first. Medical records can only be created for real goats."
           />
-        ) : medicalRecords.length === 0 ? (
+        ) : medicalRecords.length ===
+          0 ? (
           <MedicalEmpty
             icon={Stethoscope}
             title="No medical records yet"
@@ -2105,12 +2438,15 @@ export default function Medical({
               label:
                 "Add Medical Record",
               onClick: () => {
-                setEditingRecord(null);
+                setEditingRecord(
+                  null
+                );
                 setModalOpen(true);
               },
             }}
           />
-        ) : filteredRecords.length === 0 ? (
+        ) : filteredRecords.length ===
+          0 ? (
           <MedicalEmpty
             icon={Search}
             title="No matching records"
@@ -2354,9 +2690,7 @@ export default function Medical({
 
       </section>
 
-      {/* ===================================================
-          RECENT MEDICAL ACTIVITY
-      =================================================== */}
+      {/* RECENT ACTIVITY */}
 
       <section className="medical-panel">
 
@@ -2381,7 +2715,8 @@ export default function Medical({
 
         </div>
 
-        {medicalRecords.length === 0 ? (
+        {medicalRecords.length ===
+        0 ? (
           <MedicalEmpty
             icon={History}
             title="No history"
@@ -2454,9 +2789,9 @@ export default function Medical({
 
       </section>
 
-      {/* ===================================================
+      {/* =====================================================
           MEDICAL DETAIL DRAWER
-      =================================================== */}
+      ===================================================== */}
 
       {selectedRecord && (
         <div
@@ -2702,9 +3037,9 @@ export default function Medical({
         </div>
       )}
 
-      {/* ===================================================
+      {/* =====================================================
           GOAT HEALTH DRAWER
-      =================================================== */}
+      ===================================================== */}
 
       {selectedGoatDetails && (
         <div
@@ -2941,9 +3276,9 @@ export default function Medical({
         </div>
       )}
 
-      {/* ===================================================
-          ADD / EDIT MEDICAL MODAL
-      =================================================== */}
+      {/* =====================================================
+          ADD / EDIT MODAL
+      ===================================================== */}
 
       {modalOpen && (
         <MedicalRecordModal

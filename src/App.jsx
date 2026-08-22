@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 
 import {
   Bell,
-  Menu,
   Activity,
   Droplet,
   Calendar,
@@ -10,11 +9,14 @@ import {
   Wrench,
   BarChart3,
   Stethoscope,
+  Scale,
+  ArrowRight,
+  LogOut,
+  CheckCircle2,
 } from "lucide-react";
 
 import CenteredAuthShell from "./components/CenteredAuthShell.jsx";
 import TenantLogin from "./components/TenantLogin.jsx";
-import Sidebar from "./components/SideBar.jsx";
 
 import GoatsPage from "./components/GoatsPage.jsx";
 import WeightLogPage from "./components/WeightlogPage.jsx";
@@ -24,6 +26,7 @@ import MedicalPage from "./components/MedicalPage.jsx";
 import SalesPage from "./components/SalesPage.jsx";
 import ReportsPage from "./components/ReportsPage.jsx";
 import FarmSetupPage from "./components/FarmSetup.jsx";
+import WeighingScalePage from "./components/WeighingScalePage.jsx";
 import Subscription from "./components/Subscription.jsx";
 
 import {
@@ -42,14 +45,18 @@ import {
 } from "./utils/subscription.js";
 
 
+/* =========================================================
+   MAIN APP
+========================================================= */
+
 export default function App() {
 
   /* =========================================================
      SCREEN
   ========================================================= */
 
-  const [screen, setScreen] =
-    useState("tenant-login");
+  const [screen, setScreen] = useState("tenant-login");
+
 
   /* =========================================================
      ACTIVE SECTION
@@ -58,12 +65,6 @@ export default function App() {
   const [activeSection, setActiveSection] =
     useState("dashboard");
 
-  /* =========================================================
-     SIDEBAR
-  ========================================================= */
-
-  const [sidebarOpen, setSidebarOpen] =
-    useState(false);
 
   /* =========================================================
      TENANTS
@@ -72,12 +73,14 @@ export default function App() {
   const [tenants, setTenants] =
     useState(DEMO_TENANTS);
 
+
   /* =========================================================
      STORAGE
   ========================================================= */
 
   const [storageReady, setStorageReady] =
     useState(false);
+
 
   /* =========================================================
      SESSION
@@ -86,6 +89,7 @@ export default function App() {
   const [tenantSession, setTenantSession] =
     useState(null);
 
+
   /* =========================================================
      SAVE ERROR
   ========================================================= */
@@ -93,8 +97,9 @@ export default function App() {
   const [saveError, setSaveError] =
     useState("");
 
+
   /* =========================================================
-     REAL TIME SUBSCRIPTION CLOCK
+     SUBSCRIPTION CLOCK
   ========================================================= */
 
   const [, setSubscriptionTick] =
@@ -110,9 +115,7 @@ export default function App() {
     try {
 
       const stored =
-        localStorage.getItem(
-          STORAGE_KEY
-        );
+        localStorage.getItem(STORAGE_KEY);
 
       if (stored) {
 
@@ -122,9 +125,12 @@ export default function App() {
 
       }
 
-    } catch {
+    } catch (error) {
 
-      // No saved data
+      console.error(
+        "Failed to load tenant data:",
+        error
+      );
 
     } finally {
 
@@ -154,7 +160,12 @@ export default function App() {
 
       setSaveError("");
 
-    } catch {
+    } catch (error) {
+
+      console.error(
+        "Failed to save tenant data:",
+        error
+      );
 
       setSaveError(
         "Running in this session only — saved changes may not survive a full reload."
@@ -169,9 +180,7 @@ export default function App() {
 
 
   /* =========================================================
-     REAL TIME TRIAL CHECK
-     
-     Every second React re-checks subscription status.
+     REAL TIME SUBSCRIPTION CHECK
   ========================================================= */
 
   useEffect(() => {
@@ -207,14 +216,11 @@ export default function App() {
     const normalizedSlug =
       slugify(slug);
 
-
     const t =
       tenants[normalizedSlug];
 
 
-    /* ---------------------------------------------------------
-       FARM NOT FOUND
-    --------------------------------------------------------- */
+    /* FARM NOT FOUND */
 
     if (!t) {
 
@@ -227,9 +233,7 @@ export default function App() {
     }
 
 
-    /* ---------------------------------------------------------
-       FARM STATUS
-    --------------------------------------------------------- */
+    /* FARM STATUS */
 
     if (t.status !== "Active") {
 
@@ -242,9 +246,7 @@ export default function App() {
     }
 
 
-    /* ---------------------------------------------------------
-       LOGIN ID
-    --------------------------------------------------------- */
+    /* LOGIN ID */
 
     if (!loginId) {
 
@@ -257,9 +259,7 @@ export default function App() {
     }
 
 
-    /* ---------------------------------------------------------
-       PASSWORD
-    --------------------------------------------------------- */
+    /* PASSWORD */
 
     if (!password) {
 
@@ -272,12 +272,10 @@ export default function App() {
     }
 
 
-    /* ---------------------------------------------------------
-       FIND USER
-    --------------------------------------------------------- */
+    /* FIND USER */
 
     const u =
-      t.users.find(
+      t.users?.find(
         (x) =>
           x.password === password &&
           (
@@ -287,9 +285,7 @@ export default function App() {
       );
 
 
-    /* ---------------------------------------------------------
-       INVALID LOGIN
-    --------------------------------------------------------- */
+    /* INVALID LOGIN */
 
     if (!u) {
 
@@ -302,14 +298,11 @@ export default function App() {
     }
 
 
-    /* =========================================================
-       IMPORTANT:
-       EXISTING TENANT WITHOUT SUBSCRIPTION
-       GETS 14 DAY TRIAL ON FIRST LOGIN
-    ========================================================= */
+    /* =====================================================
+       CREATE TRIAL IF NEEDED
+    ===================================================== */
 
     let loginTenant = t;
-
 
     if (
       !t.subscription ||
@@ -327,10 +320,6 @@ export default function App() {
       };
 
 
-      /* -------------------------------------------------------
-         SAVE TRIAL TO REAL TENANT STATE
-      ------------------------------------------------------- */
-
       setTenants((prev) => ({
 
         ...prev,
@@ -343,9 +332,9 @@ export default function App() {
     }
 
 
-    /* =========================================================
-       CREATE SESSION
-    ========================================================= */
+    /* =====================================================
+       SESSION
+    ===================================================== */
 
     setTenantSession({
 
@@ -361,10 +350,6 @@ export default function App() {
     });
 
 
-    /* =========================================================
-       ENTER APP
-    ========================================================= */
-
     setScreen(
       "tenant-plain"
     );
@@ -372,8 +357,6 @@ export default function App() {
     setActiveSection(
       "dashboard"
     );
-
-    setSidebarOpen(false);
 
 
     return {
@@ -409,9 +392,7 @@ export default function App() {
     }
 
 
-    if (
-      tenants[normalizedSlug]
-    ) {
+    if (tenants[normalizedSlug]) {
 
       return {
         ok: false,
@@ -444,10 +425,9 @@ export default function App() {
     }
 
 
-    /* =========================================================
-       CREATE REAL TENANT
-       + IMMEDIATELY CREATE 14 DAY TRIAL
-    ========================================================= */
+    /* =====================================================
+       NEW TENANT
+    ===================================================== */
 
     const newTenant = {
 
@@ -483,20 +463,13 @@ export default function App() {
       data:
         emptyTenantData(),
 
-
-      /* =====================================================
-         14 DAY FREE TRIAL
-      ===================================================== */
-
       subscription:
         createTrialSubscription(),
 
     };
 
 
-    /* =========================================================
-       SAVE TENANT
-    ========================================================= */
+    /* SAVE */
 
     setTenants((prev) => ({
 
@@ -508,9 +481,7 @@ export default function App() {
     }));
 
 
-    /* =========================================================
-       LOGIN SESSION
-    ========================================================= */
+    /* SESSION */
 
     setTenantSession({
 
@@ -533,8 +504,6 @@ export default function App() {
       "dashboard"
     );
 
-    setSidebarOpen(false);
-
 
     return {
       ok: true,
@@ -554,7 +523,6 @@ export default function App() {
 
     const normalizedSlug =
       slugify(farmId);
-
 
     const t =
       tenants[normalizedSlug];
@@ -583,7 +551,7 @@ export default function App() {
 
 
     const u =
-      t.users.find(
+      t.users?.find(
         (x) =>
           x.username === loginId ||
           x.email === loginId
@@ -664,10 +632,6 @@ export default function App() {
 
   /* =========================================================
      NAVIGATION
-     
-     IMPORTANT:
-     If trial expired, every section except
-     subscription redirects to subscription page.
   ========================================================= */
 
   function goToSection(key) {
@@ -683,9 +647,9 @@ export default function App() {
       );
 
 
-    /* ---------------------------------------------------------
-       LOCK APP AFTER TRIAL EXPIRY
-    --------------------------------------------------------- */
+    /* =====================================================
+       TRIAL EXPIRED
+    ===================================================== */
 
     if (
       expired &&
@@ -696,37 +660,51 @@ export default function App() {
         "subscription"
       );
 
-      setSidebarOpen(false);
-
       return;
 
     }
 
 
-    /* ---------------------------------------------------------
-       NORMAL NAVIGATION
-    --------------------------------------------------------- */
-
     setActiveSection(key);
 
-    setSidebarOpen(false);
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
 
   }
 
 
   /* =========================================================
-     RENDER
+     LOGOUT
+  ========================================================= */
+
+  function logout() {
+
+    setTenantSession(null);
+
+    setScreen(
+      "tenant-login"
+    );
+
+    setActiveSection(
+      "dashboard"
+    );
+
+  }
+
+
+  /* =========================================================
+     SAVE ERROR UI
   ========================================================= */
 
   return (
 
     <div
       style={{
-        minHeight:
-          "100vh",
-
+        minHeight: "100vh",
         background:
-          "linear-gradient(180deg, #F8FAFF 0%, #E7F0FF 100%)",
+          "linear-gradient(180deg, #F8FAFF 0%, #EAF2FF 100%)",
       }}
     >
 
@@ -739,24 +717,20 @@ export default function App() {
         <div
           style={{
             position: "fixed",
-            top: 10,
-            right: 10,
-            left: 10,
-            maxWidth: 360,
-            marginLeft: "auto",
-            background:
-              "rgba(15,23,42,0.94)",
+            top: 15,
+            right: 15,
+            maxWidth: 380,
+            background: "#0F172A",
             color: "#fff",
-            padding:
-              "12px 16px",
-            borderRadius: 10,
+            padding: "13px 16px",
+            borderRadius: 12,
             fontSize: 12,
             zIndex: 100,
             display: "flex",
             gap: 10,
             alignItems: "center",
             boxShadow:
-              "0 16px 40px rgba(15,23,42,0.18)",
+              "0 18px 45px rgba(15,23,42,0.2)",
           }}
         >
 
@@ -774,12 +748,11 @@ export default function App() {
               setSaveError("")
             }
             style={{
-              background:
-                "transparent",
               border: "none",
+              background: "transparent",
               color: "#fff",
-              opacity: 0.75,
               cursor: "pointer",
+              fontWeight: 700,
             }}
           >
             Close
@@ -791,8 +764,7 @@ export default function App() {
 
 
       {/* =====================================================
-          TRIAL REMINDER
-          SHOW ONLY ONE DAY BEFORE EXPIRY
+          TOP TRIAL ALERT
       ===================================================== */}
 
       {screen === "tenant-plain" &&
@@ -807,19 +779,18 @@ export default function App() {
               right: 0,
               zIndex: 90,
               background:
-                "linear-gradient(90deg, #92400E, #B45309)",
+                "linear-gradient(90deg,#92400E,#B45309)",
               color: "#fff",
               padding:
-                "11px 16px",
+                "10px 16px",
               display: "flex",
               justifyContent:
                 "center",
-              alignItems: "center",
+              alignItems:
+                "center",
               gap: 12,
               fontSize: 13,
               fontWeight: 700,
-              boxShadow:
-                "0 4px 20px rgba(0,0,0,0.12)",
             }}
           >
 
@@ -839,11 +810,10 @@ export default function App() {
                 background: "#fff",
                 color: "#92400E",
                 padding:
-                  "6px 11px",
+                  "6px 12px",
                 borderRadius: 8,
                 cursor: "pointer",
                 fontWeight: 800,
-                fontSize: 12,
               }}
             >
               View Subscription
@@ -882,47 +852,12 @@ export default function App() {
 
 
       {/* =====================================================
-          SIDEBAR
-      ===================================================== */}
-
-      {screen === "tenant-plain" &&
-        tenantSession && (
-
-          <Sidebar
-            open={
-              sidebarOpen
-            }
-
-            onClose={() =>
-              setSidebarOpen(false)
-            }
-
-            activeSection={
-              activeSection
-            }
-
-            onNavigate={
-              goToSection
-            }
-
-            tenantSession={
-              tenantSession
-            }
-          />
-
-        )}
-
-
-      {/* =====================================================
-          SUBSCRIPTION
-          
-          THIS IS ALWAYS ACCESSIBLE
+          SUBSCRIPTION PAGE
       ===================================================== */}
 
       {screen === "tenant-plain" &&
         tenantSession &&
-        activeSection ===
-          "subscription" && (
+        activeSection === "subscription" && (
 
           <Subscription
             tenant={
@@ -931,9 +866,7 @@ export default function App() {
 
             onBack={() => {
 
-              if (
-                trialExpired
-              ) {
+              if (trialExpired) {
 
                 setActiveSection(
                   "subscription"
@@ -955,8 +888,6 @@ export default function App() {
 
       {/* =====================================================
           APP CONTENT
-          
-          ONLY SHOW WHEN TRIAL IS ACTIVE
       ===================================================== */}
 
       {screen === "tenant-plain" &&
@@ -969,8 +900,7 @@ export default function App() {
                 GOATS
             ================================================= */}
 
-            {activeSection ===
-              "goats" && (
+            {activeSection === "goats" && (
 
               <GoatsPage
                 tenant={
@@ -990,11 +920,10 @@ export default function App() {
 
 
             {/* =================================================
-                WEIGHT LOG
+                MILK RECORDS
             ================================================= */}
 
-            {activeSection ===
-              "weightlog" && (
+            {activeSection === "weightlog" && (
 
               <WeightLogPage
                 tenant={
@@ -1017,8 +946,7 @@ export default function App() {
                 EVENTS
             ================================================= */}
 
-            {activeSection ===
-              "breeding" && (
+            {activeSection === "breeding" && (
 
               <EventsPage
                 onBack={() =>
@@ -1035,8 +963,7 @@ export default function App() {
                 VACCINATIONS
             ================================================= */}
 
-            {activeSection ===
-              "vaccinations" && (
+            {activeSection === "vaccinations" && (
 
               <VaccinationsPage
                 tenant={
@@ -1059,8 +986,7 @@ export default function App() {
                 MEDICAL
             ================================================= */}
 
-            {activeSection ===
-              "medical" && (
+            {activeSection === "medical" && (
 
               <MedicalPage
                 tenant={
@@ -1083,8 +1009,7 @@ export default function App() {
                 FARM SETUP
             ================================================= */}
 
-            {activeSection ===
-              "farm-setup" && (
+            {activeSection === "farm-setup" && (
 
               <FarmSetupPage
                 tenant={
@@ -1105,8 +1030,7 @@ export default function App() {
                 SALES
             ================================================= */}
 
-            {activeSection ===
-              "sales" && (
+            {activeSection === "sales" && (
 
               <SalesPage
                 tenant={
@@ -1129,10 +1053,31 @@ export default function App() {
                 REPORTS
             ================================================= */}
 
-            {activeSection ===
-              "reports" && (
+            {activeSection === "reports" && (
 
               <ReportsPage
+                tenant={
+                  activeTenant
+                }
+
+                onBack={() =>
+                  goToSection(
+                    "dashboard"
+                  )
+                }
+              />
+
+            )}
+
+
+            {/* =================================================
+                WEIGHING SCALE
+                Separate Component
+            ================================================= */}
+
+            {activeSection === "weighing-scale" && (
+
+              <WeighingScalePage
                 tenant={
                   activeTenant
                 }
@@ -1151,54 +1096,83 @@ export default function App() {
                 DASHBOARD
             ================================================= */}
 
-            {activeSection ===
-              "dashboard" && (
+            {activeSection === "dashboard" && (
 
               <div
                 style={{
-                  minHeight:
-                    "100vh",
-
+                  minHeight: "100vh",
                   background:
-                    "linear-gradient(180deg, #F8FAFF 0%, #E7F0FF 100%)",
+                    "linear-gradient(180deg,#F8FAFF 0%,#EAF2FF 100%)",
                 }}
               >
 
-                {/* =========================================
+                {/* =================================================
                     HEADER
-                ========================================= */}
+                ================================================= */}
 
-                <div
+                <header
                   style={{
                     background:
-                      "#1E3A8A",
+                      "linear-gradient(135deg,#0F2F73 0%,#1D4ED8 55%,#2563EB 100%)",
+                    color: "#fff",
                     padding:
-                      "26px 20px 30px",
+                      "26px 20px 42px",
+                    position: "relative",
+                    overflow: "hidden",
                   }}
                 >
+
+                  {/* Decorative circles */}
+
+                  <div
+                    style={{
+                      position: "absolute",
+                      width: 280,
+                      height: 280,
+                      borderRadius:
+                        "50%",
+                      background:
+                        "rgba(255,255,255,0.06)",
+                      right: -80,
+                      top: -120,
+                    }}
+                  />
+
+                  <div
+                    style={{
+                      position: "absolute",
+                      width: 180,
+                      height: 180,
+                      borderRadius:
+                        "50%",
+                      background:
+                        "rgba(255,255,255,0.05)",
+                      left: -80,
+                      bottom: -100,
+                    }}
+                  />
+
 
                   <div
                     style={{
                       maxWidth: 1180,
-                      margin:
-                        "0 auto",
-                      display:
-                        "flex",
-                      flexDirection:
-                        "column",
-                      gap: 22,
+                      margin: "0 auto",
+                      position:
+                        "relative",
+                      zIndex: 2,
                     }}
                   >
 
+                    {/* TOP BAR */}
+
                     <div
                       style={{
-                        display:
-                          "flex",
+                        display: "flex",
                         alignItems:
                           "center",
                         justifyContent:
                           "space-between",
-                        gap: 12,
+                        gap: 15,
                         flexWrap:
                           "wrap",
                       }}
@@ -1206,139 +1180,184 @@ export default function App() {
 
                       <div
                         style={{
-                          display:
-                            "flex",
+                          display: "flex",
                           alignItems:
                             "center",
-                          gap: 14,
+                          gap: 13,
                         }}
                       >
 
-                        <button
-                          onClick={() =>
-                            setSidebarOpen(
-                              true
-                            )
-                          }
-                          aria-label="Open menu"
+                        <div
                           style={{
-                            width: 44,
-                            height: 44,
-                            borderRadius: 14,
-                            backgroundColor:
-                              "rgba(255,255,255,0.18)",
-                            display:
-                              "flex",
-                            alignItems:
-                              "center",
-                            justifyContent:
-                              "center",
+                            width: 48,
+                            height: 48,
+                            borderRadius:
+                              15,
+                            background:
+                              "rgba(255,255,255,0.14)",
                             border:
-                              "none",
-                            cursor:
-                              "pointer",
+                              "1px solid rgba(255,255,255,0.16)",
+                            display:
+                              "grid",
+                            placeItems:
+                              "center",
                           }}
                         >
 
-                          <Menu
-                            size={18}
-                            color="#fff"
+                          <Activity
+                            size={22}
                           />
 
-                        </button>
+                        </div>
 
 
                         <div>
 
                           <div
                             style={{
-                              color:
-                                "#fff",
-                              fontSize:
-                                22,
+                              fontSize: 11,
+                              letterSpacing:
+                                1.4,
                               fontWeight:
                                 800,
-                              letterSpacing:
-                                0.7,
+                              opacity: 0.7,
+                            }}
+                          >
+                            GOAT FARM
+                            MANAGEMENT
+                          </div>
+
+
+                          <h1
+                            style={{
+                              margin:
+                                "3px 0 0",
+                              fontSize: 24,
+                              fontWeight:
+                                900,
                             }}
                           >
                             My Goat Manager
-                          </div>
-
-
-                          <div
-                            style={{
-                              color:
-                                "rgba(255,255,255,0.82)",
-                              fontSize:
-                                14,
-                              marginTop:
-                                4,
-                            }}
-                          >
-                            A modern dashboard
-                            for your farm
-                            operations.
-                          </div>
+                          </h1>
 
                         </div>
 
                       </div>
 
 
+                      {/* RIGHT ACTIONS */}
+
                       <div
                         style={{
-                          display:
-                            "flex",
+                          display: "flex",
                           alignItems:
                             "center",
-                          gap: 12,
+                          gap: 9,
                           flexWrap:
                             "wrap",
                         }}
                       >
 
-                        <div
+                        {/* SUBSCRIPTION */}
+
+                        <button
+                          onClick={() =>
+                            goToSection(
+                              "subscription"
+                            )
+                          }
                           style={{
-                            width: 44,
-                            height: 44,
-                            borderRadius: 14,
-                            backgroundColor:
-                              "rgba(255,255,255,0.18)",
+                            border:
+                              "1px solid rgba(255,255,255,0.2)",
+                            background:
+                              "rgba(255,255,255,0.12)",
+                            color: "#fff",
+                            padding:
+                              "10px 14px",
+                            borderRadius:
+                              12,
+                            cursor:
+                              "pointer",
                             display:
                               "flex",
                             alignItems:
                               "center",
-                            justifyContent:
+                            gap: 7,
+                            fontSize: 12,
+                            fontWeight:
+                              800,
+                          }}
+                        >
+
+                          Subscription
+
+                          <ArrowRight
+                            size={14}
+                          />
+
+                        </button>
+
+
+                        {/* NOTIFICATION */}
+
+                        <div
+                          style={{
+                            width: 42,
+                            height: 42,
+                            borderRadius:
+                              12,
+                            background:
+                              "rgba(255,255,255,0.12)",
+                            display:
+                              "grid",
+                            placeItems:
                               "center",
                           }}
                         >
 
                           <Bell
-                            size={20}
-                            color="#fff"
+                            size={18}
                           />
 
                         </div>
 
 
+                        {/* STATUS */}
+
                         <div
                           style={{
                             padding:
-                              "10px 14px",
+                              "10px 13px",
                             borderRadius:
                               999,
                             background:
-                              "rgba(255,255,255,0.12)",
+                              "rgba(16,185,129,0.18)",
                             color:
-                              "#fff",
-                            fontSize:
-                              13,
+                              "#D1FAE5",
+                            fontSize: 11,
                             fontWeight:
-                              700,
+                              800,
+                            display:
+                              "flex",
+                            alignItems:
+                              "center",
+                            gap: 6,
                           }}
                         >
+
+                          <span
+                            style={{
+                              width: 7,
+                              height: 7,
+                              borderRadius:
+                                "50%",
+                              background:
+                                "#34D399",
+                            }}
+                          />
+
                           Active
+
                         </div>
 
                       </div>
@@ -1346,72 +1365,106 @@ export default function App() {
                     </div>
 
 
-                    {/* =====================================
-                        GREETING
-                    ===================================== */}
+                    {/* GREETING */}
 
                     <div
                       style={{
-                        display:
-                          "flex",
+                        marginTop: 32,
+                        display: "flex",
                         alignItems:
-                          "center",
+                          "flex-end",
                         justifyContent:
                           "space-between",
-                        gap: 14,
+                        gap: 20,
                         flexWrap:
                           "wrap",
                       }}
                     >
 
-                      <div
-                        style={{
-                          color:
-                            "rgba(255,255,255,0.9)",
-                          fontSize:
-                            15,
-                        }}
-                      >
+                      <div>
 
-                        Hello{" "}
-                        {tenantSession.name}.
-                        Ready to manage
-                        your herd today?
+                        <div
+                          style={{
+                            fontSize: 13,
+                            opacity: 0.7,
+                            marginBottom:
+                              6,
+                          }}
+                        >
+                          Welcome back 👋
+                        </div>
+
+
+                        <div
+                          style={{
+                            fontSize: 30,
+                            fontWeight:
+                              900,
+                            lineHeight:
+                              1.15,
+                          }}
+                        >
+                          Hello{" "}
+                          {tenantSession.name}.
+                        </div>
+
+
+                        <p
+                          style={{
+                            margin:
+                              "8px 0 0",
+                            fontSize: 14,
+                            opacity: 0.76,
+                          }}
+                        >
+                          Ready to manage
+                          your herd today?
+                        </p>
 
                       </div>
 
 
+                      {/* TRIAL */}
+
                       <div
                         style={{
-                          display:
-                            "flex",
-                          gap: 10,
-                          flexWrap:
-                            "wrap",
+                          padding:
+                            "13px 16px",
+                          borderRadius:
+                            16,
+                          background:
+                            "rgba(255,255,255,0.1)",
+                          border:
+                            "1px solid rgba(255,255,255,0.14)",
+                          minWidth: 180,
                         }}
                       >
 
                         <div
                           style={{
-                            color:
-                              "#fff",
-                            fontSize:
-                              13,
-                            background:
-                              "rgba(255,255,255,0.12)",
-                            borderRadius:
-                              14,
-                            padding:
-                              "10px 14px",
+                            fontSize: 10,
+                            opacity: 0.65,
+                            letterSpacing:
+                              1,
+                            fontWeight:
+                              800,
                           }}
                         >
+                          FREE TRIAL
+                        </div>
 
-                          Trial:
-                          {" "}
+
+                        <div
+                          style={{
+                            marginTop: 5,
+                            fontSize: 16,
+                            fontWeight:
+                              800,
+                          }}
+                        >
                           {trialDaysRemaining}
                           {" "}
-                          days left
-
+                          days remaining
                         </div>
 
                       </div>
@@ -1420,12 +1473,12 @@ export default function App() {
 
                   </div>
 
-                </div>
+                </header>
 
 
-                {/* =========================================
-                    TRIAL STATUS
-                ========================================= */}
+                {/* =================================================
+                    TRIAL REMINDER
+                ================================================= */}
 
                 {showTrialReminder && (
 
@@ -1433,7 +1486,7 @@ export default function App() {
                     style={{
                       maxWidth: 1180,
                       margin:
-                        "-12px auto 0",
+                        "-18px auto 0",
                       padding:
                         "0 16px",
                       position:
@@ -1451,9 +1504,9 @@ export default function App() {
                         color:
                           "#9a3412",
                         borderRadius:
-                          16,
+                          17,
                         padding:
-                          "12px 16px",
+                          "13px 16px",
                         display:
                           "flex",
                         alignItems:
@@ -1463,10 +1516,16 @@ export default function App() {
                         gap: 12,
                         flexWrap:
                           "wrap",
+                        boxShadow:
+                          "0 12px 30px rgba(15,23,42,0.06)",
                       }}
                     >
 
-                      <strong>
+                      <strong
+                        style={{
+                          fontSize: 12,
+                        }}
+                      >
                         ⚠️ Your free trial
                         ends tomorrow.
                       </strong>
@@ -1479,20 +1538,17 @@ export default function App() {
                           )
                         }
                         style={{
-                          border:
-                            "none",
+                          border: "none",
                           background:
                             "#9a3412",
-                          color:
-                            "#fff",
-                          borderRadius:
-                            9,
+                          color: "#fff",
+                          borderRadius: 9,
                           padding:
-                            "8px 12px",
+                            "8px 13px",
                           cursor:
                             "pointer",
-                          fontWeight:
-                            700,
+                          fontWeight: 800,
+                          fontSize: 11,
                         }}
                       >
                         View Plan
@@ -1505,107 +1561,174 @@ export default function App() {
                 )}
 
 
-                {/* =========================================
-                    DASHBOARD CARDS
-                ========================================= */}
+                {/* =================================================
+                    MAIN DASHBOARD
+                ================================================= */}
 
-                <div
+                <main
                   style={{
-                    maxWidth:
-                      1180,
-                    margin:
-                      "0 auto",
+                    maxWidth: 1180,
+                    margin: "0 auto",
                     padding:
-                      "22px 16px 32px",
+                      "26px 16px 50px",
                   }}
                 >
 
+                  {/* SECTION TITLE */}
+
                   <div
                     style={{
-                      display:
-                        "grid",
+                      display: "flex",
+                      alignItems:
+                        "flex-end",
+                      justifyContent:
+                        "space-between",
+                      gap: 15,
+                      marginBottom:
+                        16,
+                      flexWrap:
+                        "wrap",
+                    }}
+                  >
+
+                    <div>
+
+                      <div
+                        style={{
+                          color:
+                            "#2563EB",
+                          fontSize: 10,
+                          letterSpacing:
+                            1.4,
+                          fontWeight:
+                            900,
+                        }}
+                      >
+                        FARM OPERATIONS
+                      </div>
+
+
+                      <h2
+                        style={{
+                          margin:
+                            "5px 0 0",
+                          fontSize: 21,
+                          color:
+                            "#0F172A",
+                        }}
+                      >
+                        Quick access
+                      </h2>
+
+                    </div>
+
+
+                    <div
+                      style={{
+                        color:
+                          "#64748B",
+                        fontSize: 12,
+                      }}
+                    >
+                      Manage your farm
+                      from one place
+                    </div>
+
+                  </div>
+
+
+                  {/* =================================================
+                      DASHBOARD CARDS
+                  ================================================= */}
+
+                  <div
+                    style={{
+                      display: "grid",
                       gridTemplateColumns:
-                        "repeat(auto-fit, minmax(220px, 1fr))",
-                      gap: 20,
+                        "repeat(auto-fit,minmax(220px,1fr))",
+                      gap: 17,
                     }}
                   >
 
                     {[
                       {
-                        key:
-                          "goats",
-                        label:
-                          "Goats",
-                        icon:
-                          Activity,
-                        accent:
-                          "#E0F2FE",
+                        key: "goats",
+                        label: "Goats",
+                        description:
+                          "Manage goat profiles, groups and herd information.",
+                        icon: Activity,
+                        accent: "#E0F2FE",
+                        iconColor: "#0284C7",
                       },
 
                       {
-                        key:
-                          "weightlog",
-                        label:
-                          "Milk Records",
-                        icon:
-                          Droplet,
-                        accent:
-                          "#FEF3C7",
+                        key: "weightlog",
+                        label: "Milk Records",
+                        description:
+                          "Track daily milk records and production updates.",
+                        icon: Droplet,
+                        accent: "#FEF3C7",
+                        iconColor: "#D97706",
                       },
 
                       {
-                        key:
-                          "breeding",
-                        label:
-                          "Events",
-                        icon:
-                          Calendar,
-                        accent:
-                          "#E9D5FF",
+                        key: "breeding",
+                        label: "Events",
+                        description:
+                          "Track important farm events and activities.",
+                        icon: Calendar,
+                        accent: "#F3E8FF",
+                        iconColor: "#9333EA",
                       },
 
                       {
-                        key:
-                          "sales",
-                        label:
-                          "Transactions",
-                        icon:
-                          DollarSign,
-                        accent:
-                          "#FEF9C3",
+                        key: "sales",
+                        label: "Transactions",
+                        description:
+                          "Manage sales, income and farm transactions.",
+                        icon: DollarSign,
+                        accent: "#DCFCE7",
+                        iconColor: "#16A34A",
                       },
 
                       {
-                        key:
-                          "farm-setup",
-                        label:
-                          "Farm Setup",
-                        icon:
-                          Wrench,
-                        accent:
-                          "#DCFCE7",
+                        key: "farm-setup",
+                        label: "Farm Setup",
+                        description:
+                          "Configure your farm details and preferences.",
+                        icon: Wrench,
+                        accent: "#E0E7FF",
+                        iconColor: "#4F46E5",
                       },
 
                       {
-                        key:
-                          "medical",
-                        label:
-                          "Medical",
-                        icon:
-                          Stethoscope,
-                        accent:
-                          "#DBEAFE",
+                        key: "medical",
+                        label: "Medical",
+                        description:
+                          "Manage treatments, vaccinations and medical records.",
+                        icon: Stethoscope,
+                        accent: "#DBEAFE",
+                        iconColor: "#2563EB",
                       },
 
                       {
-                        key:
-                          "reports",
-                        label:
-                          "Reports",
-                        icon:
-                          BarChart3,
-                        accent:
-                          "#F3E8FF",
+                        key: "reports",
+                        label: "Reports",
+                        description:
+                          "View farm performance and important reports.",
+                        icon: BarChart3,
+                        accent: "#FCE7F3",
+                        iconColor: "#DB2777",
+                      },
+
+                      {
+                        key: "weighing-scale",
+                        label: "Weighing Scale",
+                        description:
+                          "Connect and monitor your digital goat weighing scale.",
+                        icon: Scale,
+                        accent: "#CCFBF1",
+                        iconColor: "#0F766E",
                       },
 
                     ].map(
@@ -1616,49 +1739,30 @@ export default function App() {
 
                         return (
 
-                          <div
+                          <button
                             key={
                               card.key
                             }
-
-                            role="button"
-
-                            tabIndex={0}
-
                             onClick={() =>
                               goToSection(
                                 card.key
                               )
                             }
-
-                            onKeyDown={(
-                              event
-                            ) => {
-
-                              if (
-                                event.key ===
-                                  "Enter" ||
-                                event.key ===
-                                  " "
-                              ) {
-
-                                goToSection(
-                                  card.key
-                                );
-
-                              }
-
-                            }}
-
                             style={{
                               background:
                                 "#fff",
+                              border:
+                                "1px solid rgba(15,23,42,0.045)",
                               borderRadius:
-                                24,
-                              minHeight:
-                                190,
+                                22,
                               padding:
-                                24,
+                                20,
+                              minHeight:
+                                205,
+                              textAlign:
+                                "left",
+                              cursor:
+                                "pointer",
                               display:
                                 "flex",
                               flexDirection:
@@ -1666,86 +1770,128 @@ export default function App() {
                               justifyContent:
                                 "space-between",
                               boxShadow:
-                                "0 24px 60px rgba(15,23,42,0.08)",
-                              border:
-                                "1px solid rgba(15,23,42,0.04)",
-                              cursor:
-                                "pointer",
+                                "0 15px 40px rgba(15,23,42,0.07)",
+                              transition:
+                                "all 0.2s ease",
+                            }}
+
+                            onMouseEnter={(
+                              e
+                            ) => {
+
+                              e.currentTarget.style.transform =
+                                "translateY(-4px)";
+
+                              e.currentTarget.style.boxShadow =
+                                "0 22px 50px rgba(15,23,42,0.11)";
+
+                            }}
+
+                            onMouseLeave={(
+                              e
+                            ) => {
+
+                              e.currentTarget.style.transform =
+                                "translateY(0)";
+
+                              e.currentTarget.style.boxShadow =
+                                "0 15px 40px rgba(15,23,42,0.07)";
+
                             }}
                           >
 
-                            <div
-                              style={{
-                                display:
-                                  "flex",
-                                alignItems:
-                                  "center",
-                                gap: 14,
-                              }}
-                            >
+                            <div>
 
                               <div
                                 style={{
-                                  width: 52,
-                                  height: 52,
-                                  borderRadius: 18,
-                                  background:
-                                    card.accent,
                                   display:
-                                    "grid",
-                                  placeItems:
+                                    "flex",
+                                  alignItems:
                                     "center",
-                                  color:
-                                    "#1D4ED8",
+                                  justifyContent:
+                                    "space-between",
                                 }}
                               >
 
-                                <Icon
-                                  size={20}
+                                <div
+                                  style={{
+                                    width: 50,
+                                    height: 50,
+                                    borderRadius:
+                                      16,
+                                    background:
+                                      card.accent,
+                                    color:
+                                      card.iconColor,
+                                    display:
+                                      "grid",
+                                    placeItems:
+                                      "center",
+                                  }}
+                                >
+
+                                  <Icon
+                                    size={21}
+                                  />
+
+                                </div>
+
+
+                                <ArrowRight
+                                  size={17}
+                                  color="#94A3B8"
                                 />
 
                               </div>
 
 
-                              <div
+                              <h3
                                 style={{
-                                  fontSize:
-                                    15,
-                                  fontWeight:
-                                    700,
+                                  margin:
+                                    "17px 0 6px",
+                                  fontSize: 16,
                                   color:
                                     "#111827",
                                 }}
                               >
                                 {card.label}
-                              </div>
+                              </h3>
+
+
+                              <p
+                                style={{
+                                  margin: 0,
+                                  color:
+                                    "#64748B",
+                                  fontSize: 12,
+                                  lineHeight:
+                                    1.6,
+                                }}
+                              >
+                                {
+                                  card.description
+                                }
+                              </p>
 
                             </div>
 
 
                             <div
                               style={{
-                                marginTop:
-                                  18,
+                                marginTop: 15,
+                                fontSize: 11,
                                 color:
-                                  "#4B5563",
-                                fontSize:
-                                  13,
-                                lineHeight:
-                                  1.6,
-                                textAlign:
-                                  "center",
+                                  card.iconColor,
+                                fontWeight:
+                                  800,
                               }}
                             >
-                              Manage{" "}
-                              {card.label.toLowerCase()}
-                              {" "}
-                              with fast
-                              updates and
-                              easy access.
+                              Open{" "}
+                              {card.label}
+                              {" →"}
                             </div>
 
-                          </div>
+                          </button>
 
                         );
 
@@ -1754,7 +1900,226 @@ export default function App() {
 
                   </div>
 
-                </div>
+
+                  {/* =================================================
+                      BOTTOM INFO
+                  ================================================= */}
+
+                  <div
+                    style={{
+                      marginTop: 22,
+                      display: "grid",
+                      gridTemplateColumns:
+                        "repeat(auto-fit,minmax(260px,1fr))",
+                      gap: 16,
+                    }}
+                  >
+
+                    {/* SUBSCRIPTION */}
+
+                    <button
+                      onClick={() =>
+                        goToSection(
+                          "subscription"
+                        )
+                      }
+                      style={{
+                        border:
+                          "1px solid #DBEAFE",
+                        background:
+                          "linear-gradient(135deg,#EFF6FF,#F8FAFF)",
+                        borderRadius:
+                          20,
+                        padding: 18,
+                        cursor:
+                          "pointer",
+                        textAlign:
+                          "left",
+                        display:
+                          "flex",
+                        alignItems:
+                          "center",
+                        justifyContent:
+                          "space-between",
+                        gap: 15,
+                      }}
+                    >
+
+                      <div
+                        style={{
+                          display:
+                            "flex",
+                          alignItems:
+                            "center",
+                          gap: 12,
+                        }}
+                      >
+
+                        <div
+                          style={{
+                            width: 42,
+                            height: 42,
+                            borderRadius:
+                              12,
+                            background:
+                              "#DBEAFE",
+                            color:
+                              "#2563EB",
+                            display:
+                              "grid",
+                            placeItems:
+                              "center",
+                          }}
+                        >
+
+                          <CheckCircle2
+                            size={19}
+                          />
+
+                        </div>
+
+
+                        <div>
+
+                          <strong
+                            style={{
+                              display:
+                                "block",
+                              color:
+                                "#1E3A8A",
+                              fontSize: 13,
+                            }}
+                          >
+                            Subscription
+                          </strong>
+
+
+                          <span
+                            style={{
+                              color:
+                                "#64748B",
+                              fontSize: 11,
+                            }}
+                          >
+                            {trialActive
+                              ? `${trialDaysRemaining} days left in your trial`
+                              : "View your plan"}
+                          </span>
+
+                        </div>
+
+                      </div>
+
+
+                      <ArrowRight
+                        size={17}
+                        color="#2563EB"
+                      />
+
+                    </button>
+
+
+                    {/* LOGOUT */}
+
+                    <button
+                      onClick={logout}
+                      style={{
+                        border:
+                          "1px solid #E5E7EB",
+                        background:
+                          "#fff",
+                        borderRadius:
+                          20,
+                        padding: 18,
+                        cursor:
+                          "pointer",
+                        textAlign:
+                          "left",
+                        display:
+                          "flex",
+                        alignItems:
+                          "center",
+                        justifyContent:
+                          "space-between",
+                        gap: 15,
+                      }}
+                    >
+
+                      <div
+                        style={{
+                          display:
+                            "flex",
+                          alignItems:
+                            "center",
+                          gap: 12,
+                        }}
+                      >
+
+                        <div
+                          style={{
+                            width: 42,
+                            height: 42,
+                            borderRadius:
+                              12,
+                            background:
+                              "#F1F5F9",
+                            color:
+                              "#475569",
+                            display:
+                              "grid",
+                            placeItems:
+                              "center",
+                          }}
+                        >
+
+                          <LogOut
+                            size={18}
+                          />
+
+                        </div>
+
+
+                        <div>
+
+                          <strong
+                            style={{
+                              display:
+                                "block",
+                              color:
+                                "#334155",
+                              fontSize: 13,
+                            }}
+                          >
+                            Sign Out
+                          </strong>
+
+
+                          <span
+                            style={{
+                              color:
+                                "#94A3B8",
+                              fontSize: 11,
+                            }}
+                          >
+                            Exit your farm
+                            account
+                          </span>
+
+                        </div>
+
+                      </div>
+
+
+                      <ArrowRight
+                        size={17}
+                        color="#94A3B8"
+                      />
+
+                    </button>
+
+                  </div>
+
+                </main>
 
               </div>
 

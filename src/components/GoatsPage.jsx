@@ -343,7 +343,7 @@
     }
   }
 
-  const BREEDS = ["All Breeds", "Alpine", "Boer", "Kiko", "Nubian"];
+  const BREEDS = ["All Breeds", "Kanni Adu (கன்னி ஆடு)", "Kodi Adu (கொடி ஆடு) ", "Jamunapari (ஜமுனாபாரி)"];
   const GROUPS = ["All Groups"];
   const STAGE_OPTIONS = {
     Female: ["Kid", "Doeling", "Doe"],
@@ -910,12 +910,6 @@
                 ))}
               </div>
             </div>
-
-            <button type="button" className="gp-strip-outline" onClick={() => setModal("scale")}>
-              <span className="left"><Wifi size={19} /> Weigh on live scale</span>
-              <span className="right">{goat.weight != null ? `${goat.weight} kg` : "Not recorded"}</span>
-            </button>
-
             <button type="button" className="gp-strip"><Camera size={19} /> Tap to upload a picture...</button>
 
             <div className="gp-panel">
@@ -1098,130 +1092,6 @@
   }
 
   /* =========================================================
-    LIVE WEIGHING SCALE
-    Reads/writes through the goat record itself (goat.weight +
-    goat.events) instead of localStorage, so a reading saved here
-    shows up immediately in Details and the Events tab.
-  ========================================================= */
-
-  function GoatWeightScale({ goat, onBack, onSave }) {
-    const startingWeight = goat?.weight != null && goat.weight !== "" ? Number(goat.weight) : 30;
-    const [weight, setWeight] = useState(startingWeight);
-    const [stable, setStable] = useState(true);
-    const [saved, setSaved] = useState(false);
-
-    const weightHistory = (goat?.events || []).filter((e) => e.type === "Weight").slice().reverse();
-
-    // DEMO LIVE SENSOR: drifts a little each tick to simulate a connected
-    // scale settling on a value. On real hardware (ESP32 + HX711 load cell),
-    // replace this interval with the incoming sensor value.
-    useEffect(() => {
-      const timer = setInterval(() => {
-        setWeight((old) => Number(Math.max(1, old + (Math.random() - 0.5) * 0.3).toFixed(1)));
-        setStable(Math.random() > 0.3);
-      }, 700);
-      return () => clearInterval(timer);
-    }, []);
-
-    function handleSave() {
-      onSave(Number(weight.toFixed(1)));
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-    }
-
-    const hardwareFlow = [
-      { label: "Load Cell", note: "Weight sensor" },
-      { label: "HX711", note: "ADC module" },
-      { label: "ESP32", note: "Wi-Fi" },
-      { label: "Goat profile", note: "Live weight" },
-    ];
-
-    return (
-      <div className="gp-app">
-        <GlobalStyle />
-        <div className="gp-scale-header">
-          <div className="gp-scale-header-inner">
-            <button type="button" className="gp-scale-back" onClick={onBack}><ArrowLeft size={20} /> Back to {goat?.name || "goat"}</button>
-            <div>
-              <div className="gp-scale-title">Weighing Scale</div>
-              <div className="gp-scale-subtitle">Real-time weight measurement</div>
-            </div>
-            <div className="gp-scale-connected"><Wifi size={15} /> Scale Connected</div>
-          </div>
-        </div>
-
-        <div className="gp-scale-body">
-          <div className="gp-scale-goat">
-            <div className="gp-scale-avatar">🐐</div>
-            <div style={{ flex: 1 }}>
-              <div className="gp-scale-goat-name">{goat?.name || "Unnamed Goat"}</div>
-              <div className="gp-scale-goat-meta">#{goat?.tagNumber || "—"} · {goat?.breed || "Breed not specified"}</div>
-            </div>
-            <div className="gp-scale-last">
-              <label>LAST RECORDED</label>
-              <strong>{goat?.weight != null ? `${goat.weight} kg` : "—"}</strong>
-            </div>
-          </div>
-
-          <div className="gp-scale-card">
-            <div className="gp-scale-heading"><Scale size={20} /> LIVE WEIGHT</div>
-            <div className="gp-scale-lcd">
-              <div className="gp-scale-number">{weight.toFixed(1)}<span>kg</span></div>
-              {stable ? (
-                <div className="gp-scale-status stable"><CheckCircle size={15} /> Weight stable</div>
-              ) : (
-                <div className="gp-scale-status measuring"><RefreshCw size={15} style={{ animation: "gp-pulse 1s ease-in-out infinite" }} /> Measuring...</div>
-              )}
-            </div>
-
-            <div className="gp-scale-platform">
-              <div className="gp-platform-top">🐐</div>
-              <div className="gp-platform-mid"><div /><div /><div /></div>
-              <div className="gp-platform-legs"><i /><i /><i /><i /></div>
-            </div>
-            <p className="gp-scale-instruction">Place {goat?.name || "the goat"} on the weighing platform</p>
-          </div>
-
-          <div className="gp-scale-save">
-            <div>
-              <h3>Weight reading</h3>
-              <p>Save this reading to {goat?.name || "this goat"}'s weight history.</p>
-            </div>
-            <button type="button" className="gp-btn gp-btn-primary" onClick={handleSave}><Save size={17} /> Save Weight</button>
-          </div>
-
-          {saved && <div className="gp-scale-success"><CheckCircle size={18} /> {weight.toFixed(1)} kg saved to {goat?.name || "goat"}'s profile</div>}
-
-          <div className="gp-scale-panel">
-            <h3>Weighing scale connection</h3>
-            <div className="gp-hw-flow">
-              {hardwareFlow.map((node, i) => (
-                <React.Fragment key={node.label}>
-                  <div className="gp-hw-node"><b>{node.label}</b><small>{node.note}</small></div>
-                  {i < hardwareFlow.length - 1 && <span className="gp-hw-arrow">→</span>}
-                </React.Fragment>
-              ))}
-            </div>
-          </div>
-
-          <div className="gp-scale-panel">
-            <h3>Weight history</h3>
-            {weightHistory.length === 0 ? (
-              <p className="gp-hint" style={{ fontSize: 13 }}>No weight records yet for {goat?.name || "this goat"}.</p>
-            ) : (
-              weightHistory.map((item) => (
-                <div className="gp-history-row" key={item.id}>
-                  <div><strong>{item.title}</strong><small>{item.date}</small></div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  /* =========================================================
     REPORT MODAL
   ========================================================= */
 
@@ -1353,13 +1223,39 @@
     const [photo, setPhoto] = useState(null);
     const [error, setError] = useState("");
 
-    function handlePhoto(e) {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      if (file.size > 5 * 1024 * 1024) { setError("Photo size should be less than 5MB."); return; }
-      setPhoto(URL.createObjectURL(file));
-      setError("");
-    }
+   function handlePhoto(e) {
+  const file = e.target.files?.[0];
+
+  if (!file) return;
+
+  // Check image type
+  if (!file.type.startsWith("image/")) {
+    setError("Please select a valid image file.");
+    e.target.value = "";
+    return;
+  }
+
+  // Maximum 5MB
+  if (file.size > 5 * 1024 * 1024) {
+    setError("Photo size should be less than 5MB.");
+    e.target.value = "";
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    setPhoto(reader.result);
+    setError("");
+  };
+
+  reader.onerror = () => {
+    setError("Unable to read the selected photo.");
+    e.target.value = "";
+  };
+
+  reader.readAsDataURL(file);
+}
 
     function handleGenderChange(newGender) {
       setGender(newGender);
@@ -1401,24 +1297,59 @@
             <p>Create a digital profile for your goat</p>
           </div>
 
-          <section className="gp-photo-card">
-            <div className="gp-photo-drop">
-              {photo ? (
-                <img src={photo} alt="Selected goat" />
-              ) : (
-                <>
-                  <div className="gp-photo-icon">🐐</div>
-                  <strong style={{ color: "#123B78" }}>Add Goat Photo</strong>
-                  <span style={{ marginTop: 5, color: "var(--text-faint)", fontSize: 12 }}>Upload or drag & drop image</span>
-                </>
-              )}
-            </div>
-            <label className="gp-photo-upload">
-              <Camera size={16} /> {photo ? "Change Photo" : "Upload Photo"}
-              <input type="file" accept="image/*" onChange={handlePhoto} hidden />
-            </label>
-            <div style={{ marginTop: 7, color: "#9AACC9", fontSize: 10 }}>JPG, PNG or WEBP · Max 5MB</div>
-          </section>
+         <section className="gp-photo-card">
+  <div className="gp-photo-drop">
+    {photo ? (
+      <img
+        src={photo}
+        alt="Selected goat"
+      />
+    ) : (
+      <>
+        <div className="gp-photo-icon">
+          🐐
+        </div>
+
+        <strong style={{ color: "#123B78" }}>
+          Add Goat Photo
+        </strong>
+
+        <span
+          style={{
+            marginTop: 5,
+            color: "var(--text-faint)",
+            fontSize: 12,
+          }}
+        >
+          Upload or drag & drop image
+        </span>
+      </>
+    )}
+  </div>
+
+  <label className="gp-photo-upload">
+    <Camera size={16} />
+
+    {photo ? "Change Photo" : "Upload Photo"}
+
+    <input
+      type="file"
+      accept="image/jpeg,image/png,image/webp"
+      onChange={handlePhoto}
+      hidden
+    />
+  </label>
+
+  <div
+    style={{
+      marginTop: 7,
+      color: "#9AACC9",
+      fontSize: 10,
+    }}
+  >
+    JPG, PNG or WEBP · Max 5MB
+  </div>
+</section>
 
           <div className="gp-two-col">
             <section className="gp-form-card">
