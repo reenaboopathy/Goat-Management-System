@@ -17,7 +17,6 @@ import {
 
 import CenteredAuthShell from "./components/CenteredAuthShell.jsx";
 import TenantLogin from "./components/TenantLogin.jsx";
-import Breeding from "./components/BreedingPage.jsx";
 
 import GoatsPage from "./components/GoatsPage.jsx";
 import WeightLogPage from "./components/WeightlogPage.jsx";
@@ -45,124 +44,70 @@ import {
   shouldShowTrialReminder,
 } from "./utils/subscription.js";
 
-
 /* =========================================================
    MAIN APP
 ========================================================= */
 
 export default function App() {
-
-  /* =========================================================
-     SCREEN
-  ========================================================= */
-
   const [screen, setScreen] = useState("tenant-login");
-
-
-  /* =========================================================
-     ACTIVE SECTION
-  ========================================================= */
 
   const [activeSection, setActiveSection] =
     useState("dashboard");
 
-
-  /* =========================================================
-     TENANTS
-  ========================================================= */
-
   const [tenants, setTenants] =
     useState(DEMO_TENANTS);
-
-
-  /* =========================================================
-     STORAGE
-  ========================================================= */
 
   const [storageReady, setStorageReady] =
     useState(false);
 
-
-  /* =========================================================
-     SESSION
-  ========================================================= */
-
   const [tenantSession, setTenantSession] =
     useState(null);
-
-
-  /* =========================================================
-     SAVE ERROR
-  ========================================================= */
 
   const [saveError, setSaveError] =
     useState("");
 
-
-  /* =========================================================
-     SUBSCRIPTION CLOCK
-  ========================================================= */
-
   const [, setSubscriptionTick] =
     useState(Date.now());
-
 
   /* =========================================================
      LOAD TENANTS
   ========================================================= */
 
   useEffect(() => {
-
     try {
-
       const stored =
         localStorage.getItem(STORAGE_KEY);
 
       if (stored) {
-
-        setTenants(
-          JSON.parse(stored)
-        );
-
+        setTenants(JSON.parse(stored));
       }
-
     } catch (error) {
-
       console.error(
         "Failed to load tenant data:",
         error
       );
-
     } finally {
-
       setStorageReady(true);
-
     }
-
   }, []);
-
 
   /* =========================================================
      SAVE TENANTS
   ========================================================= */
 
   useEffect(() => {
-
     if (!storageReady) {
       return;
     }
 
     try {
-
       localStorage.setItem(
         STORAGE_KEY,
         JSON.stringify(tenants)
       );
 
       setSaveError("");
-
     } catch (error) {
-
       console.error(
         "Failed to save tenant data:",
         error
@@ -171,109 +116,65 @@ export default function App() {
       setSaveError(
         "Running in this session only — saved changes may not survive a full reload."
       );
-
     }
-
-  }, [
-    tenants,
-    storageReady,
-  ]);
-
+  }, [tenants, storageReady]);
 
   /* =========================================================
-     REAL TIME SUBSCRIPTION CHECK
+     SUBSCRIPTION CLOCK
   ========================================================= */
 
   useEffect(() => {
-
-    const timer =
-      setInterval(() => {
-
-        setSubscriptionTick(
-          Date.now()
-        );
-
-      }, 1000);
+    const timer = setInterval(() => {
+      setSubscriptionTick(Date.now());
+    }, 1000);
 
     return () => {
-
       clearInterval(timer);
-
     };
-
   }, []);
-
 
   /* =========================================================
      TENANT LOGIN
   ========================================================= */
 
-  function tenantLogin(
-    slug,
-    loginId,
-    password
-  ) {
-
+  function tenantLogin(slug, loginId, password) {
     const normalizedSlug =
       slugify(slug);
 
     const t =
       tenants[normalizedSlug];
 
-
-    /* FARM NOT FOUND */
-
     if (!t) {
-
       return {
         ok: false,
         error:
           "No farm found with that name",
       };
-
     }
 
-
-    /* FARM STATUS */
-
     if (t.status !== "Active") {
-
       return {
         ok: false,
         error:
           "This farm account is suspended",
       };
-
     }
 
-
-    /* LOGIN ID */
-
     if (!loginId) {
-
       return {
         ok: false,
         error:
           "Enter a valid username or email",
       };
-
     }
 
-
-    /* PASSWORD */
-
     if (!password) {
-
       return {
         ok: false,
         error:
           "Enter a valid password",
       };
-
     }
-
-
-    /* FIND USER */
 
     const u =
       t.users?.find(
@@ -285,23 +186,13 @@ export default function App() {
           )
       );
 
-
-    /* INVALID LOGIN */
-
     if (!u) {
-
       return {
         ok: false,
         error:
           "Wrong farm name or password",
       };
-
     }
-
-
-    /* =====================================================
-       CREATE TRIAL IF NEEDED
-    ===================================================== */
 
     let loginTenant = t;
 
@@ -310,46 +201,27 @@ export default function App() {
       !t.subscription.trialStartedAt ||
       !t.subscription.trialEndsAt
     ) {
-
       loginTenant = {
-
         ...t,
-
         subscription:
           createTrialSubscription(),
-
       };
 
-
       setTenants((prev) => ({
-
         ...prev,
-
         [normalizedSlug]:
           loginTenant,
-
       }));
-
     }
 
-
-    /* =====================================================
-       SESSION
-    ===================================================== */
-
     setTenantSession({
-
       tenantId:
         normalizedSlug,
-
       username:
         u.username,
-
       name:
         u.name || u.username,
-
     });
-
 
     setScreen(
       "tenant-plain"
@@ -359,13 +231,10 @@ export default function App() {
       "dashboard"
     );
 
-
     return {
       ok: true,
     };
-
   }
-
 
   /* =========================================================
      CREATE TENANT
@@ -377,61 +246,42 @@ export default function App() {
     email,
     password,
   }) {
-
     const normalizedSlug =
       slugify(farmId);
 
-
     if (!normalizedSlug) {
-
       return {
         ok: false,
         error:
           "Enter a valid farm name",
       };
-
     }
 
-
     if (tenants[normalizedSlug]) {
-
       return {
         ok: false,
         error:
           "This farm name already exists",
       };
-
     }
 
-
     if (!username) {
-
       return {
         ok: false,
         error:
           "Enter a valid username",
       };
-
     }
 
-
     if (!password) {
-
       return {
         ok: false,
         error:
           "Enter a valid password",
       };
-
     }
 
-
-    /* =====================================================
-       NEW TENANT
-    ===================================================== */
-
     const newTenant = {
-
       name:
         username,
 
@@ -444,21 +294,14 @@ export default function App() {
           .slice(0, 10),
 
       users: [
-
         {
-
           username,
-
           email:
             email || "",
-
           password,
-
           name:
             username,
-
         },
-
       ],
 
       data:
@@ -466,36 +309,21 @@ export default function App() {
 
       subscription:
         createTrialSubscription(),
-
     };
 
-
-    /* SAVE */
-
     setTenants((prev) => ({
-
       ...prev,
-
       [normalizedSlug]:
         newTenant,
-
     }));
 
-
-    /* SESSION */
-
     setTenantSession({
-
       tenantId:
         normalizedSlug,
-
       username,
-
       name:
         username,
-
     });
-
 
     setScreen(
       "tenant-plain"
@@ -505,13 +333,10 @@ export default function App() {
       "dashboard"
     );
 
-
     return {
       ok: true,
     };
-
   }
-
 
   /* =========================================================
      PASSWORD RECOVERY
@@ -521,35 +346,27 @@ export default function App() {
     farmId,
     loginId
   ) {
-
     const normalizedSlug =
       slugify(farmId);
 
     const t =
       tenants[normalizedSlug];
 
-
     if (!t) {
-
       return {
         ok: false,
         error:
           "No farm found with that name",
       };
-
     }
 
-
     if (!loginId) {
-
       return {
         ok: false,
         error:
           "Enter a valid username or email",
       };
-
     }
-
 
     const u =
       t.users?.find(
@@ -558,29 +375,20 @@ export default function App() {
           x.email === loginId
       );
 
-
     if (!u) {
-
       return {
         ok: false,
         error:
           "No matching user found for that farm",
       };
-
     }
 
-
     return {
-
       ok: true,
-
       message:
         `Your password is: ${u.password}`,
-
     };
-
   }
-
 
   /* =========================================================
      ACTIVE TENANT
@@ -593,7 +401,6 @@ export default function App() {
         ]
       : null;
 
-
   /* =========================================================
      SUBSCRIPTION
   ========================================================= */
@@ -602,69 +409,50 @@ export default function App() {
     activeTenant?.subscription ||
     null;
 
-
-  /* =========================================================
-     TRIAL STATUS
-  ========================================================= */
-
   const trialActive =
     isTrialActive(
       subscription
     );
-
 
   const trialExpired =
     isTrialExpired(
       subscription
     );
 
-
   const trialDaysRemaining =
     getTrialDaysRemaining(
       subscription
     );
-
 
   const showTrialReminder =
     shouldShowTrialReminder(
       subscription
     );
 
-
   /* =========================================================
      NAVIGATION
   ========================================================= */
 
   function goToSection(key) {
-
     const currentSubscription =
       activeTenant?.subscription ||
       null;
-
 
     const expired =
       isTrialExpired(
         currentSubscription
       );
 
-
-    /* =====================================================
-       TRIAL EXPIRED
-    ===================================================== */
-
     if (
       expired &&
       key !== "subscription"
     ) {
-
       setActiveSection(
         "subscription"
       );
 
       return;
-
     }
-
 
     setActiveSection(key);
 
@@ -672,16 +460,13 @@ export default function App() {
       top: 0,
       behavior: "smooth",
     });
-
   }
-
 
   /* =========================================================
      LOGOUT
   ========================================================= */
 
   function logout() {
-
     setTenantSession(null);
 
     setScreen(
@@ -691,16 +476,13 @@ export default function App() {
     setActiveSection(
       "dashboard"
     );
-
   }
 
-
   /* =========================================================
-     SAVE ERROR UI
+     UI
   ========================================================= */
 
   return (
-
     <div
       style={{
         minHeight: "100vh",
@@ -708,13 +490,9 @@ export default function App() {
           "linear-gradient(180deg, #F8FAFF 0%, #EAF2FF 100%)",
       }}
     >
-
-      {/* =====================================================
-          SAVE ERROR
-      ===================================================== */}
+      {/* SAVE ERROR */}
 
       {saveError && (
-
         <div
           style={{
             position: "fixed",
@@ -723,7 +501,8 @@ export default function App() {
             maxWidth: 380,
             background: "#0F172A",
             color: "#fff",
-            padding: "13px 16px",
+            padding:
+              "13px 16px",
             borderRadius: 12,
             fontSize: 12,
             zIndex: 100,
@@ -734,7 +513,6 @@ export default function App() {
               "0 18px 45px rgba(15,23,42,0.2)",
           }}
         >
-
           <span
             style={{
               flex: 1,
@@ -743,14 +521,14 @@ export default function App() {
             {saveError}
           </span>
 
-
           <button
             onClick={() =>
               setSaveError("")
             }
             style={{
               border: "none",
-              background: "transparent",
+              background:
+                "transparent",
               color: "#fff",
               cursor: "pointer",
               fontWeight: 700,
@@ -758,20 +536,14 @@ export default function App() {
           >
             Close
           </button>
-
         </div>
-
       )}
 
-
-      {/* =====================================================
-          TOP TRIAL ALERT
-      ===================================================== */}
+      {/* TOP TRIAL ALERT */}
 
       {screen === "tenant-plain" &&
         tenantSession &&
         showTrialReminder && (
-
           <div
             style={{
               position: "fixed",
@@ -787,18 +559,15 @@ export default function App() {
               display: "flex",
               justifyContent:
                 "center",
-              alignItems:
-                "center",
+              alignItems: "center",
               gap: 12,
               fontSize: 13,
               fontWeight: 700,
             }}
           >
-
             <span>
               ⚠️ Your free trial ends tomorrow.
             </span>
-
 
             <button
               onClick={() =>
@@ -819,297 +588,222 @@ export default function App() {
             >
               View Subscription
             </button>
-
           </div>
-
         )}
 
-
-      {/* =====================================================
-          LOGIN
-      ===================================================== */}
+      {/* LOGIN */}
 
       {screen === "tenant-login" && (
-
         <CenteredAuthShell>
-
           <TenantLogin
             onLogin={
               tenantLogin
             }
-
             onCreateTenant={
               createTenant
             }
-
             onRecoverPassword={
               recoverPassword
             }
           />
-
         </CenteredAuthShell>
-
       )}
 
-
-      {/* =====================================================
-          SUBSCRIPTION PAGE
-      ===================================================== */}
+      {/* SUBSCRIPTION */}
 
       {screen === "tenant-plain" &&
         tenantSession &&
-        activeSection === "subscription" && (
-
+        activeSection ===
+          "subscription" && (
           <Subscription
             tenant={
               activeTenant
             }
-
             onBack={() => {
-
               if (trialExpired) {
-
                 setActiveSection(
                   "subscription"
                 );
-
                 return;
-
               }
 
               goToSection(
                 "dashboard"
               );
-
             }}
           />
-
         )}
 
-
-      {/* =====================================================
-          APP CONTENT
-      ===================================================== */}
+      {/* APPLICATION */}
 
       {screen === "tenant-plain" &&
         tenantSession &&
         trialActive && (
-
           <>
+            {/* GOATS */}
 
-            {/* =================================================
-                GOATS
-            ================================================= */}
-
-            {activeSection === "goats" && (
-
+            {activeSection ===
+              "goats" && (
               <GoatsPage
                 tenant={
                   activeTenant
                 }
-
                 onBack={() =>
                   goToSection(
                     "dashboard"
                   )
                 }
-
                 onAdd={() => {}}
               />
-
             )}
 
+            {/* MILK RECORDS */}
 
-            {/* =================================================
-                MILK RECORDS
-            ================================================= */}
-
-            {activeSection === "weightlog" && (
-
+            {activeSection ===
+              "weightlog" && (
               <WeightLogPage
                 tenant={
                   activeTenant
                 }
-
                 onBack={() =>
                   goToSection(
                     "dashboard"
                   )
                 }
-
                 onAdd={() => {}}
               />
-
             )}
 
+            {/* EVENTS */}
 
-            {/* =================================================
-                EVENTS
-            ================================================= */}
-
-            {activeSection === "breeding" && (
-
+            {activeSection ===
+              "events" && (
               <EventsPage
+                tenant={
+                  activeTenant
+                }
                 onBack={() =>
                   goToSection(
                     "dashboard"
                   )
                 }
               />
-
             )}
 
+            {/* VACCINATIONS */}
 
-            {/* =================================================
-                VACCINATIONS
-            ================================================= */}
-
-            {activeSection === "vaccinations" && (
-
+            {activeSection ===
+              "vaccinations" && (
               <VaccinationsPage
                 tenant={
                   activeTenant
                 }
-
                 onBack={() =>
                   goToSection(
                     "dashboard"
                   )
                 }
-
                 onAdd={() => {}}
               />
-
             )}
 
+            {/* MEDICAL */}
 
-            {/* =================================================
-                MEDICAL
-            ================================================= */}
-
-            {activeSection === "medical" && (
-
+            {activeSection ===
+              "medical" && (
               <MedicalPage
                 tenant={
                   activeTenant
                 }
-
                 onBack={() =>
                   goToSection(
                     "dashboard"
                   )
                 }
-
                 onAdd={() => {}}
               />
-
             )}
 
+            {/* FARM SETUP */}
 
-            {/* =================================================
-                FARM SETUP
-            ================================================= */}
-
-            {activeSection === "farm-setup" && (
-
+            {activeSection ===
+              "farm-setup" && (
               <FarmSetupPage
                 tenant={
                   activeTenant
                 }
-
                 onBack={() =>
                   goToSection(
                     "dashboard"
                   )
                 }
               />
-
             )}
 
+            {/* SALES */}
 
-            {/* =================================================
-                SALES
-            ================================================= */}
-
-            {activeSection === "sales" && (
-
+            {activeSection ===
+              "sales" && (
               <SalesPage
                 tenant={
                   activeTenant
                 }
-
                 onBack={() =>
                   goToSection(
                     "dashboard"
                   )
                 }
-
                 onAdd={() => {}}
               />
-
             )}
 
+            {/* REPORTS */}
 
-            {/* =================================================
-                REPORTS
-            ================================================= */}
-
-            {activeSection === "reports" && (
-
+            {activeSection ===
+              "reports" && (
               <ReportsPage
                 tenant={
                   activeTenant
                 }
-
                 onBack={() =>
                   goToSection(
                     "dashboard"
                   )
                 }
               />
-
             )}
 
+            {/* WEIGHING SCALE */}
 
-            {/* =================================================
-                WEIGHING SCALE
-                Separate Component
-            ================================================= */}
-
-            {activeSection === "weighing-scale" && (
-
+            {activeSection ===
+              "weighing-scale" && (
               <WeighingScalePage
                 tenant={
                   activeTenant
                 }
-
                 onBack={() =>
                   goToSection(
                     "dashboard"
                   )
                 }
               />
-
             )}
-
 
             {/* =================================================
                 DASHBOARD
             ================================================= */}
 
-            {activeSection === "dashboard" && (
-
+            {activeSection ===
+              "dashboard" && (
               <div
                 style={{
-                  minHeight: "100vh",
+                  minHeight:
+                    "100vh",
                   background:
                     "linear-gradient(180deg,#F8FAFF 0%,#EAF2FF 100%)",
                 }}
               >
-
-                {/* =================================================
-                    HEADER
-                ================================================= */}
+                {/* HEADER */}
 
                 <header
                   style={{
@@ -1118,16 +812,16 @@ export default function App() {
                     color: "#fff",
                     padding:
                       "26px 20px 42px",
-                    position: "relative",
-                    overflow: "hidden",
+                    position:
+                      "relative",
+                    overflow:
+                      "hidden",
                   }}
                 >
-
-                  {/* Decorative circles */}
-
                   <div
                     style={{
-                      position: "absolute",
+                      position:
+                        "absolute",
                       width: 280,
                       height: 280,
                       borderRadius:
@@ -1141,7 +835,8 @@ export default function App() {
 
                   <div
                     style={{
-                      position: "absolute",
+                      position:
+                        "absolute",
                       width: 180,
                       height: 180,
                       borderRadius:
@@ -1153,7 +848,6 @@ export default function App() {
                     }}
                   />
 
-
                   <div
                     style={{
                       maxWidth: 1180,
@@ -1163,12 +857,12 @@ export default function App() {
                       zIndex: 2,
                     }}
                   >
-
                     {/* TOP BAR */}
 
                     <div
                       style={{
-                        display: "flex",
+                        display:
+                          "flex",
                         alignItems:
                           "center",
                         justifyContent:
@@ -1178,16 +872,15 @@ export default function App() {
                           "wrap",
                       }}
                     >
-
                       <div
                         style={{
-                          display: "flex",
+                          display:
+                            "flex",
                           alignItems:
                             "center",
                           gap: 13,
                         }}
                       >
-
                         <div
                           style={{
                             width: 48,
@@ -1204,16 +897,12 @@ export default function App() {
                               "center",
                           }}
                         >
-
                           <Activity
                             size={22}
                           />
-
                         </div>
 
-
                         <div>
-
                           <div
                             style={{
                               fontSize: 11,
@@ -1228,7 +917,6 @@ export default function App() {
                             MANAGEMENT
                           </div>
 
-
                           <h1
                             style={{
                               margin:
@@ -1240,17 +928,15 @@ export default function App() {
                           >
                             My Goat Manager
                           </h1>
-
                         </div>
-
                       </div>
 
-
-                      {/* RIGHT ACTIONS */}
+                      {/* RIGHT */}
 
                       <div
                         style={{
-                          display: "flex",
+                          display:
+                            "flex",
                           alignItems:
                             "center",
                           gap: 9,
@@ -1258,9 +944,6 @@ export default function App() {
                             "wrap",
                         }}
                       >
-
-                        {/* SUBSCRIPTION */}
-
                         <button
                           onClick={() =>
                             goToSection(
@@ -1289,17 +972,12 @@ export default function App() {
                               800,
                           }}
                         >
-
                           Subscription
 
                           <ArrowRight
                             size={14}
                           />
-
                         </button>
-
-
-                        {/* NOTIFICATION */}
 
                         <div
                           style={{
@@ -1315,15 +993,10 @@ export default function App() {
                               "center",
                           }}
                         >
-
                           <Bell
                             size={18}
                           />
-
                         </div>
-
-
-                        {/* STATUS */}
 
                         <div
                           style={{
@@ -1345,7 +1018,6 @@ export default function App() {
                             gap: 6,
                           }}
                         >
-
                           <span
                             style={{
                               width: 7,
@@ -1358,20 +1030,17 @@ export default function App() {
                           />
 
                           Active
-
                         </div>
-
                       </div>
-
                     </div>
-
 
                     {/* GREETING */}
 
                     <div
                       style={{
                         marginTop: 32,
-                        display: "flex",
+                        display:
+                          "flex",
                         alignItems:
                           "flex-end",
                         justifyContent:
@@ -1381,9 +1050,7 @@ export default function App() {
                           "wrap",
                       }}
                     >
-
                       <div>
-
                         <div
                           style={{
                             fontSize: 13,
@@ -1395,7 +1062,6 @@ export default function App() {
                           Welcome back 👋
                         </div>
 
-
                         <div
                           style={{
                             fontSize: 30,
@@ -1406,9 +1072,10 @@ export default function App() {
                           }}
                         >
                           Hello{" "}
-                          {tenantSession.name}.
+                          {
+                            tenantSession.name
+                          }.
                         </div>
-
 
                         <p
                           style={{
@@ -1421,11 +1088,7 @@ export default function App() {
                           Ready to manage
                           your herd today?
                         </p>
-
                       </div>
-
-
-                      {/* TRIAL */}
 
                       <div
                         style={{
@@ -1440,7 +1103,6 @@ export default function App() {
                           minWidth: 180,
                         }}
                       >
-
                         <div
                           style={{
                             fontSize: 10,
@@ -1454,7 +1116,6 @@ export default function App() {
                           FREE TRIAL
                         </div>
 
-
                         <div
                           style={{
                             marginTop: 5,
@@ -1463,26 +1124,19 @@ export default function App() {
                               800,
                           }}
                         >
-                          {trialDaysRemaining}
-                          {" "}
+                          {
+                            trialDaysRemaining
+                          }{" "}
                           days remaining
                         </div>
-
                       </div>
-
                     </div>
-
                   </div>
-
                 </header>
 
-
-                {/* =================================================
-                    TRIAL REMINDER
-                ================================================= */}
+                {/* TRIAL REMINDER */}
 
                 {showTrialReminder && (
-
                   <div
                     style={{
                       maxWidth: 1180,
@@ -1495,7 +1149,6 @@ export default function App() {
                       zIndex: 5,
                     }}
                   >
-
                     <div
                       style={{
                         background:
@@ -1521,7 +1174,6 @@ export default function App() {
                           "0 12px 30px rgba(15,23,42,0.06)",
                       }}
                     >
-
                       <strong
                         style={{
                           fontSize: 12,
@@ -1530,7 +1182,6 @@ export default function App() {
                         ⚠️ Your free trial
                         ends tomorrow.
                       </strong>
-
 
                       <button
                         onClick={() =>
@@ -1554,32 +1205,25 @@ export default function App() {
                       >
                         View Plan
                       </button>
-
                     </div>
-
                   </div>
-
                 )}
 
-
-                {/* =================================================
-                    MAIN DASHBOARD
-                ================================================= */}
+                {/* MAIN */}
 
                 <main
                   style={{
                     maxWidth: 1180,
-                    margin: "0 auto",
+                    margin:
+                      "0 auto",
                     padding:
                       "26px 16px 50px",
                   }}
                 >
-
-                  {/* SECTION TITLE */}
-
                   <div
                     style={{
-                      display: "flex",
+                      display:
+                        "flex",
                       alignItems:
                         "flex-end",
                       justifyContent:
@@ -1591,9 +1235,7 @@ export default function App() {
                         "wrap",
                     }}
                   >
-
                     <div>
-
                       <div
                         style={{
                           color:
@@ -1608,7 +1250,6 @@ export default function App() {
                         FARM OPERATIONS
                       </div>
 
-
                       <h2
                         style={{
                           margin:
@@ -1620,9 +1261,7 @@ export default function App() {
                       >
                         Quick access
                       </h2>
-
                     </div>
-
 
                     <div
                       style={{
@@ -1634,23 +1273,19 @@ export default function App() {
                       Manage your farm
                       from one place
                     </div>
-
                   </div>
 
-
-                  {/* =================================================
-                      DASHBOARD CARDS
-                  ================================================= */}
+                  {/* DASHBOARD CARDS */}
 
                   <div
                     style={{
-                      display: "grid",
+                      display:
+                        "grid",
                       gridTemplateColumns:
                         "repeat(auto-fit,minmax(220px,1fr))",
                       gap: 17,
                     }}
                   >
-
                     {[
                       {
                         key: "goats",
@@ -1658,88 +1293,110 @@ export default function App() {
                         description:
                           "Manage goat profiles, groups and herd information.",
                         icon: Activity,
-                        accent: "#E0F2FE",
-                        iconColor: "#0284C7",
+                        accent:
+                          "#E0F2FE",
+                        iconColor:
+                          "#0284C7",
                       },
 
                       {
                         key: "weightlog",
-                        label: "Milk Records",
+                        label:
+                          "Milk Records",
                         description:
                           "Track daily milk records and production updates.",
                         icon: Droplet,
-                        accent: "#FEF3C7",
-                        iconColor: "#D97706",
+                        accent:
+                          "#FEF3C7",
+                        iconColor:
+                          "#D97706",
                       },
 
                       {
-                        key: "breeding",
-                        label: "Events",
+                        key: "events",
+                        label:
+                          "Events",
                         description:
                           "Track important farm events and activities.",
                         icon: Calendar,
-                        accent: "#F3E8FF",
-                        iconColor: "#9333EA",
+                        accent:
+                          "#F3E8FF",
+                        iconColor:
+                          "#9333EA",
                       },
 
                       {
                         key: "sales",
-                        label: "Transactions",
+                        label:
+                          "Transactions",
                         description:
                           "Manage sales, income and farm transactions.",
                         icon: DollarSign,
-                        accent: "#DCFCE7",
-                        iconColor: "#16A34A",
+                        accent:
+                          "#DCFCE7",
+                        iconColor:
+                          "#16A34A",
                       },
 
                       {
-                        key: "farm-setup",
-                        label: "Farm Setup",
+                        key:
+                          "farm-setup",
+                        label:
+                          "Farm Setup",
                         description:
                           "Configure your farm details and preferences.",
                         icon: Wrench,
-                        accent: "#E0E7FF",
-                        iconColor: "#4F46E5",
+                        accent:
+                          "#E0E7FF",
+                        iconColor:
+                          "#4F46E5",
                       },
 
                       {
                         key: "medical",
-                        label: "Medical",
+                        label:
+                          "Medical",
                         description:
                           "Manage treatments, vaccinations and medical records.",
                         icon: Stethoscope,
-                        accent: "#DBEAFE",
-                        iconColor: "#2563EB",
+                        accent:
+                          "#DBEAFE",
+                        iconColor:
+                          "#2563EB",
                       },
 
                       {
                         key: "reports",
-                        label: "Reports",
+                        label:
+                          "Reports",
                         description:
                           "View farm performance and important reports.",
                         icon: BarChart3,
-                        accent: "#FCE7F3",
-                        iconColor: "#DB2777",
+                        accent:
+                          "#FCE7F3",
+                        iconColor:
+                          "#DB2777",
                       },
 
                       {
-                        key: "weighing-scale",
-                        label: "Weighing Scale",
+                        key:
+                          "weighing-scale",
+                        label:
+                          "Weighing Scale",
                         description:
                           "Connect and monitor your digital goat weighing scale.",
                         icon: Scale,
-                        accent: "#CCFBF1",
-                        iconColor: "#0F766E",
+                        accent:
+                          "#CCFBF1",
+                        iconColor:
+                          "#0F766E",
                       },
-
                     ].map(
                       (card) => {
-
                         const Icon =
                           card.icon;
 
                         return (
-
                           <button
                             key={
                               card.key
@@ -1756,8 +1413,7 @@ export default function App() {
                                 "1px solid rgba(15,23,42,0.045)",
                               borderRadius:
                                 22,
-                              padding:
-                                20,
+                              padding: 20,
                               minHeight:
                                 205,
                               textAlign:
@@ -1775,34 +1431,26 @@ export default function App() {
                               transition:
                                 "all 0.2s ease",
                             }}
-
                             onMouseEnter={(
                               e
                             ) => {
-
                               e.currentTarget.style.transform =
                                 "translateY(-4px)";
 
                               e.currentTarget.style.boxShadow =
                                 "0 22px 50px rgba(15,23,42,0.11)";
-
                             }}
-
                             onMouseLeave={(
                               e
                             ) => {
-
                               e.currentTarget.style.transform =
                                 "translateY(0)";
 
                               e.currentTarget.style.boxShadow =
                                 "0 15px 40px rgba(15,23,42,0.07)";
-
                             }}
                           >
-
                             <div>
-
                               <div
                                 style={{
                                   display:
@@ -1813,7 +1461,6 @@ export default function App() {
                                     "space-between",
                                 }}
                               >
-
                                 <div
                                   style={{
                                     width: 50,
@@ -1830,21 +1477,16 @@ export default function App() {
                                       "center",
                                   }}
                                 >
-
                                   <Icon
                                     size={21}
                                   />
-
                                 </div>
-
 
                                 <ArrowRight
                                   size={17}
                                   color="#94A3B8"
                                 />
-
                               </div>
-
 
                               <h3
                                 style={{
@@ -1855,9 +1497,10 @@ export default function App() {
                                     "#111827",
                                 }}
                               >
-                                {card.label}
+                                {
+                                  card.label
+                                }
                               </h3>
-
 
                               <p
                                 style={{
@@ -1873,13 +1516,12 @@ export default function App() {
                                   card.description
                                 }
                               </p>
-
                             </div>
-
 
                             <div
                               style={{
-                                marginTop: 15,
+                                marginTop:
+                                  15,
                                 fontSize: 11,
                                 color:
                                   card.iconColor,
@@ -1888,36 +1530,29 @@ export default function App() {
                               }}
                             >
                               Open{" "}
-                              {card.label}
-                              {" →"}
+                              {
+                                card.label
+                              }{" "}
+                              →
                             </div>
-
                           </button>
-
                         );
-
                       }
                     )}
-
                   </div>
 
-
-                  {/* =================================================
-                      BOTTOM INFO
-                  ================================================= */}
+                  {/* BOTTOM INFO */}
 
                   <div
                     style={{
                       marginTop: 22,
-                      display: "grid",
+                      display:
+                        "grid",
                       gridTemplateColumns:
                         "repeat(auto-fit,minmax(260px,1fr))",
                       gap: 16,
                     }}
                   >
-
-                    {/* SUBSCRIPTION */}
-
                     <button
                       onClick={() =>
                         goToSection(
@@ -1945,7 +1580,6 @@ export default function App() {
                         gap: 15,
                       }}
                     >
-
                       <div
                         style={{
                           display:
@@ -1955,7 +1589,6 @@ export default function App() {
                           gap: 12,
                         }}
                       >
-
                         <div
                           style={{
                             width: 42,
@@ -1972,16 +1605,12 @@ export default function App() {
                               "center",
                           }}
                         >
-
                           <CheckCircle2
                             size={19}
                           />
-
                         </div>
 
-
                         <div>
-
                           <strong
                             style={{
                               display:
@@ -1994,7 +1623,6 @@ export default function App() {
                             Subscription
                           </strong>
 
-
                           <span
                             style={{
                               color:
@@ -2006,21 +1634,14 @@ export default function App() {
                               ? `${trialDaysRemaining} days left in your trial`
                               : "View your plan"}
                           </span>
-
                         </div>
-
                       </div>
-
 
                       <ArrowRight
                         size={17}
                         color="#2563EB"
                       />
-
                     </button>
-
-
-                    {/* LOGOUT */}
 
                     <button
                       onClick={logout}
@@ -2045,7 +1666,6 @@ export default function App() {
                         gap: 15,
                       }}
                     >
-
                       <div
                         style={{
                           display:
@@ -2055,7 +1675,6 @@ export default function App() {
                           gap: 12,
                         }}
                       >
-
                         <div
                           style={{
                             width: 42,
@@ -2072,16 +1691,12 @@ export default function App() {
                               "center",
                           }}
                         >
-
                           <LogOut
                             size={18}
                           />
-
                         </div>
 
-
                         <div>
-
                           <strong
                             style={{
                               display:
@@ -2094,7 +1709,6 @@ export default function App() {
                             Sign Out
                           </strong>
 
-
                           <span
                             style={{
                               color:
@@ -2105,33 +1719,20 @@ export default function App() {
                             Exit your farm
                             account
                           </span>
-
                         </div>
-
                       </div>
-
 
                       <ArrowRight
                         size={17}
                         color="#94A3B8"
                       />
-
                     </button>
-
                   </div>
-
                 </main>
-
               </div>
-
             )}
-
           </>
-
         )}
-
     </div>
-
   );
-
 }
