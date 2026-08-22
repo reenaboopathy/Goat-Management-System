@@ -17,6 +17,7 @@ import {
 
 import CenteredAuthShell from "./components/CenteredAuthShell.jsx";
 import TenantLogin from "./components/TenantLogin.jsx";
+import Breeding from "./components/BreedingPage.jsx";
 
 import GoatsPage from "./components/GoatsPage.jsx";
 import WeightLogPage from "./components/WeightlogPage.jsx";
