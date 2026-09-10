@@ -15,12 +15,26 @@ import "./OwnerLogin.css";
    API CONFIGURATION
    ========================================================= */
 
-// Replace this with your actual Render backend URL.
-// Example:
-// const API_BASE_URL = "https://selsolve-backend.onrender.com/api";
+/*
+  Local development:
+  VITE_API_URL is not required.
+  It will automatically use:
+  http://localhost:5000/api
 
-const API_BASE_URL =
-  "https://YOUR-RENDER-BACKEND-URL.onrender.com/api";
+  Production / Vercel:
+  Add this in Vercel Environment Variables:
+
+  VITE_API_URL=https://YOUR-ACTUAL-RENDER-URL.onrender.com/api
+
+  IMPORTANT:
+  Do NOT put "YOUR-RENDER-BACKEND-URL" in the actual value.
+*/
+
+const API_BASE_URL = (
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:5000/api"
+).replace(/\/+$/, "");
+
 
 /* =========================================================
    OWNER LOGIN
@@ -37,6 +51,7 @@ function OwnerLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
 
   /* =======================================================
      HANDLE INPUT CHANGE
@@ -55,6 +70,7 @@ function OwnerLogin() {
     }
   };
 
+
   /* =======================================================
      HANDLE LOGIN
      ======================================================= */
@@ -64,7 +80,10 @@ function OwnerLogin() {
 
     setError("");
 
-    if (!form.username.trim() || !form.password.trim()) {
+    const username = form.username.trim();
+    const password = form.password.trim();
+
+    if (!username || !password) {
       setError("Username and password are required.");
       return;
     }
@@ -72,29 +91,64 @@ function OwnerLogin() {
     try {
       setLoading(true);
 
-      const response = await fetch(
-        `${API_BASE_URL}/owner/auth/login`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            username: form.username.trim(),
-            password: form.password.trim(),
-          }),
-        }
-      );
+      const loginUrl = `${API_BASE_URL}/owner/auth/login`;
+
+      console.log("OWNER LOGIN API:", loginUrl);
+
+      const response = await fetch(loginUrl, {
+        method: "POST",
+
+        /*
+          Required because owner authentication
+          uses HTTP-only cookie authentication.
+        */
+        credentials: "include",
+
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      });
+
+
+      /* ===================================================
+         READ RESPONSE
+         =================================================== */
 
       let data = {};
 
-      try {
-        data = await response.json();
-      } catch {
-        data = {};
+      const contentType =
+        response.headers.get("content-type") || "";
+
+      if (contentType.includes("application/json")) {
+        try {
+          data = await response.json();
+        } catch {
+          data = {};
+        }
+      } else {
+        try {
+          const text = await response.text();
+
+          if (text) {
+            data = {
+              message: text,
+            };
+          }
+        } catch {
+          data = {};
+        }
       }
+
+
+      /* ===================================================
+         HANDLE HTTP ERROR
+         =================================================== */
 
       if (!response.ok) {
         throw new Error(
@@ -104,13 +158,19 @@ function OwnerLogin() {
         );
       }
 
-      if (!data?.success) {
+
+      /* ===================================================
+         HANDLE API SUCCESS
+         =================================================== */
+
+      if (data?.success === false) {
         throw new Error(
           data?.error ||
             data?.message ||
             "Login failed."
         );
       }
+
 
       /* ===================================================
          STORE OWNER SESSION
@@ -123,27 +183,48 @@ function OwnerLogin() {
 
       localStorage.setItem(
         "ownerUser",
-        JSON.stringify(data.owner || {})
+        JSON.stringify(data?.owner || {})
       );
 
+
       /* ===================================================
-         REDIRECT TO DASHBOARD
+         REDIRECT TO OWNER DASHBOARD
          =================================================== */
 
       navigate("/owner/dashboard", {
         replace: true,
       });
-    } catch (err) {
-      console.error("OWNER LOGIN ERROR:", err);
 
-      setError(
-        err?.message ||
-          "Unable to connect to SelSolve server."
+    } catch (err) {
+      console.error(
+        "OWNER LOGIN ERROR:",
+        err
       );
+
+      let errorMessage =
+        err?.message ||
+        "Unable to connect to SelSolve server.";
+
+      /*
+        More useful message for production
+        connection / CORS problems.
+      */
+
+      if (
+        err?.name === "TypeError" &&
+        err?.message === "Failed to fetch"
+      ) {
+        errorMessage =
+          "Unable to connect to SelSolve server. Please check the backend URL and CORS configuration.";
+      }
+
+      setError(errorMessage);
+
     } finally {
       setLoading(false);
     }
   };
+
 
   /* =======================================================
      UI
@@ -152,10 +233,17 @@ function OwnerLogin() {
   return (
     <div className="owner-login">
 
-      <div className="login-background-shape login-shape-one" />
-      <div className="login-background-shape login-shape-two" />
+      <div
+        className="login-background-shape login-shape-one"
+      />
+
+      <div
+        className="login-background-shape login-shape-two"
+      />
+
 
       <div className="login-layout">
+
 
         {/* =================================================
             BRAND PANEL
@@ -164,11 +252,13 @@ function OwnerLogin() {
         <div className="login-brand-panel">
 
           <div className="login-brand-logo">
+
             <img
               src="/selsolve-logo.svg"
               alt="SelSolve"
               onError={(event) => {
-                event.currentTarget.style.display = "none";
+                event.currentTarget.style.display =
+                  "none";
 
                 event.currentTarget.parentElement.classList.add(
                   "logo-fallback"
@@ -177,13 +267,17 @@ function OwnerLogin() {
             />
 
             <span>SS</span>
+
           </div>
+
 
           <div className="login-brand-name">
             SelSolve
           </div>
 
+
           <div className="login-brand-line" />
+
 
           <h2>
             Manage your platform
@@ -191,12 +285,15 @@ function OwnerLogin() {
             from one place.
           </h2>
 
+
           <p>
             Owner administration for your SelSolve
             ecosystem, tenants and platform operations.
           </p>
 
+
           <div className="login-feature">
+
             <div>
               <ShieldCheck size={17} />
             </div>
@@ -204,9 +301,11 @@ function OwnerLogin() {
             <span>
               Secure platform administration
             </span>
+
           </div>
 
         </div>
+
 
         {/* =================================================
             LOGIN FORM SIDE
@@ -216,6 +315,7 @@ function OwnerLogin() {
 
           <div className="login-card">
 
+
             {/* =================================================
                 MOBILE BRAND
                 ================================================= */}
@@ -223,11 +323,13 @@ function OwnerLogin() {
             <div className="login-mobile-brand">
 
               <div className="login-mobile-logo">
+
                 <img
                   src="/selsolve-logo.svg"
                   alt="SelSolve"
                   onError={(event) => {
-                    event.currentTarget.style.display = "none";
+                    event.currentTarget.style.display =
+                      "none";
 
                     event.currentTarget.parentElement.classList.add(
                       "logo-fallback"
@@ -236,13 +338,16 @@ function OwnerLogin() {
                 />
 
                 <span>SS</span>
+
               </div>
+
 
               <strong>
                 SelSolve
               </strong>
 
             </div>
+
 
             {/* =================================================
                 HEADING
@@ -270,15 +375,20 @@ function OwnerLogin() {
 
             </div>
 
+
             {/* =================================================
                 ERROR
                 ================================================= */}
 
             {error && (
-              <div className="login-error">
+              <div
+                className="login-error"
+                role="alert"
+              >
                 {error}
               </div>
             )}
+
 
             {/* =================================================
                 FORM
@@ -288,6 +398,7 @@ function OwnerLogin() {
               className="login-form"
               onSubmit={handleSubmit}
             >
+
 
               {/* =================================================
                   USERNAME
@@ -311,11 +422,13 @@ function OwnerLogin() {
                     onChange={handleChange}
                     placeholder="Enter username"
                     autoComplete="username"
+                    disabled={loading}
                   />
 
                 </div>
 
               </div>
+
 
               {/* =================================================
                   PASSWORD
@@ -343,14 +456,17 @@ function OwnerLogin() {
                     onChange={handleChange}
                     placeholder="Enter password"
                     autoComplete="current-password"
+                    disabled={loading}
                   />
+
 
                   <button
                     type="button"
                     className="login-password-toggle"
                     onClick={() =>
                       setShowPassword(
-                        (previous) => !previous
+                        (previous) =>
+                          !previous
                       )
                     }
                     aria-label={
@@ -358,17 +474,21 @@ function OwnerLogin() {
                         ? "Hide password"
                         : "Show password"
                     }
+                    disabled={loading}
                   >
+
                     {showPassword ? (
                       <EyeOff size={17} />
                     ) : (
                       <Eye size={17} />
                     )}
+
                   </button>
 
                 </div>
 
               </div>
+
 
               {/* =================================================
                   LOGIN BUTTON
@@ -397,6 +517,7 @@ function OwnerLogin() {
 
             </form>
 
+
             {/* =================================================
                 FOOTER
                 ================================================= */}
@@ -414,6 +535,7 @@ function OwnerLogin() {
 
           </div>
 
+
           <p className="login-copyright">
             SelSolve Owner Portal
           </p>
@@ -421,8 +543,26 @@ function OwnerLogin() {
         </div>
 
       </div>
+
     </div>
   );
 }
 
+
 export default OwnerLogin;
+```
+
+### 🔥 But one thing VERY important
+
+இந்த code மட்டும் change பண்ணினா **Vercel production login immediately work ஆகாது**, because Vercel-ku **actual Render backend URL** தெரிஞ்சிருக்கணும்.
+
+Vercel → **Project → Settings → Environment Variables**
+
+Add:
+
+```text
+Name:
+VITE_API_URL
+
+Value:
+https://YOUR-ACTUAL-RENDER-URL.onrender.com/api
