@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   Eye,
@@ -9,8 +10,21 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "./OwnerLogin.css";
+
+/* =========================================================
+   API CONFIGURATION
+   ========================================================= */
+
+// Replace this with your actual Render backend URL.
+// Example:
+// const API_BASE_URL = "https://selsolve-backend.onrender.com/api";
+
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+  "https://YOUR-RENDER-BACKEND-URL.onrender.com/api";
+
+/* =========================================================
+   OWNER LOGIN
+   ========================================================= */
 
 function OwnerLogin() {
   const navigate = useNavigate();
@@ -23,6 +37,10 @@ function OwnerLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  /* =======================================================
+     HANDLE INPUT CHANGE
+     ======================================================= */
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -37,6 +55,10 @@ function OwnerLogin() {
     }
   };
 
+  /* =======================================================
+     HANDLE LOGIN
+     ======================================================= */
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -50,17 +72,21 @@ function OwnerLogin() {
     try {
       setLoading(true);
 
-      const response = await fetch(`${API_BASE_URL}/owner/auth/login`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: form.username.trim(),
-          password: form.password.trim(),
-        }),
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/owner/auth/login`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            username: form.username.trim(),
+            password: form.password.trim(),
+          }),
+        }
+      );
 
       let data = {};
 
@@ -74,7 +100,7 @@ function OwnerLogin() {
         throw new Error(
           data?.error ||
             data?.message ||
-            "Login failed."
+            `Login failed (${response.status}).`
         );
       }
 
@@ -86,11 +112,23 @@ function OwnerLogin() {
         );
       }
 
-      localStorage.setItem("ownerAuthenticated", "true");
+      /* ===================================================
+         STORE OWNER SESSION
+         =================================================== */
+
+      localStorage.setItem(
+        "ownerAuthenticated",
+        "true"
+      );
+
       localStorage.setItem(
         "ownerUser",
         JSON.stringify(data.owner || {})
       );
+
+      /* ===================================================
+         REDIRECT TO DASHBOARD
+         =================================================== */
 
       navigate("/owner/dashboard", {
         replace: true,
@@ -107,28 +145,43 @@ function OwnerLogin() {
     }
   };
 
+  /* =======================================================
+     UI
+     ======================================================= */
+
   return (
     <div className="owner-login">
+
       <div className="login-background-shape login-shape-one" />
       <div className="login-background-shape login-shape-two" />
 
       <div className="login-layout">
+
+        {/* =================================================
+            BRAND PANEL
+            ================================================= */}
+
         <div className="login-brand-panel">
+
           <div className="login-brand-logo">
             <img
               src="/selsolve-logo.svg"
               alt="SelSolve"
               onError={(event) => {
                 event.currentTarget.style.display = "none";
+
                 event.currentTarget.parentElement.classList.add(
                   "logo-fallback"
                 );
               }}
             />
+
             <span>SS</span>
           </div>
 
-          <div className="login-brand-name">SelSolve</div>
+          <div className="login-brand-name">
+            SelSolve
+          </div>
 
           <div className="login-brand-line" />
 
@@ -147,41 +200,79 @@ function OwnerLogin() {
             <div>
               <ShieldCheck size={17} />
             </div>
-            <span>Secure platform administration</span>
+
+            <span>
+              Secure platform administration
+            </span>
           </div>
+
         </div>
 
+        {/* =================================================
+            LOGIN FORM SIDE
+            ================================================= */}
+
         <div className="login-form-side">
+
           <div className="login-card">
+
+            {/* =================================================
+                MOBILE BRAND
+                ================================================= */}
+
             <div className="login-mobile-brand">
+
               <div className="login-mobile-logo">
                 <img
                   src="/selsolve-logo.svg"
                   alt="SelSolve"
                   onError={(event) => {
                     event.currentTarget.style.display = "none";
+
                     event.currentTarget.parentElement.classList.add(
                       "logo-fallback"
                     );
                   }}
                 />
+
                 <span>SS</span>
               </div>
 
-              <strong>SelSolve</strong>
+              <strong>
+                SelSolve
+              </strong>
+
             </div>
 
+            {/* =================================================
+                HEADING
+                ================================================= */}
+
             <div className="login-heading">
-              <span>OWNER ACCESS</span>
-              <h1>Welcome back</h1>
+
+              <span>
+                OWNER ACCESS
+              </span>
+
+              <h1>
+                Welcome back
+              </h1>
+
               <p>
                 Sign in to continue to your SelSolve
                 owner portal.
               </p>
+
               <small className="login-access-note">
-                Use your platform owner credentials, not a farm user login.
+                Use your platform owner credentials,
+                not a farm user login.
               </small>
+
             </div>
+
+            {/* =================================================
+                ERROR
+                ================================================= */}
 
             {error && (
               <div className="login-error">
@@ -189,14 +280,27 @@ function OwnerLogin() {
               </div>
             )}
 
+            {/* =================================================
+                FORM
+                ================================================= */}
+
             <form
               className="login-form"
               onSubmit={handleSubmit}
             >
+
+              {/* =================================================
+                  USERNAME
+                  ================================================= */}
+
               <div className="login-field">
-                <label htmlFor="username">Username</label>
+
+                <label htmlFor="username">
+                  Username
+                </label>
 
                 <div className="login-input">
+
                   <UserRound size={17} />
 
                   <input
@@ -208,13 +312,23 @@ function OwnerLogin() {
                     placeholder="Enter username"
                     autoComplete="username"
                   />
+
                 </div>
+
               </div>
 
+              {/* =================================================
+                  PASSWORD
+                  ================================================= */}
+
               <div className="login-field">
-                <label htmlFor="password">Password</label>
+
+                <label htmlFor="password">
+                  Password
+                </label>
 
                 <div className="login-input">
+
                   <LockKeyhole size={17} />
 
                   <input
@@ -251,41 +365,61 @@ function OwnerLogin() {
                       <Eye size={17} />
                     )}
                   </button>
+
                 </div>
+
               </div>
+
+              {/* =================================================
+                  LOGIN BUTTON
+                  ================================================= */}
 
               <button
                 type="submit"
                 className="login-button"
                 disabled={loading}
               >
+
                 {loading ? (
                   <>
                     <Loader2
                       size={17}
                       className="spin"
                     />
+
                     Signing in...
                   </>
                 ) : (
                   "Sign in"
                 )}
+
               </button>
+
             </form>
 
+            {/* =================================================
+                FOOTER
+                ================================================= */}
+
             <div className="login-footer">
+
               <ShieldCheck size={15} />
+
               <span>
                 Your connection is protected by
                 SelSolve authentication.
               </span>
+
             </div>
+
           </div>
 
           <p className="login-copyright">
             SelSolve Owner Portal
           </p>
+
         </div>
+
       </div>
     </div>
   );
