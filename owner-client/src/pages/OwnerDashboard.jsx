@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Activity,
@@ -12,8 +11,17 @@ import {
 } from "lucide-react";
 import "./OwnerDashboard.css";
 
-const API_BASE =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+/* =========================================================
+   API CONFIGURATION
+   ========================================================= */
+
+const API_BASE = (
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api"
+).replace(/\/$/, "");
+
+/* =========================================================
+   DASHBOARD CARDS
+   ========================================================= */
 
 const cards = [
   ["Total users", "totalUsers", Users, "blue"],
@@ -26,17 +34,25 @@ const cards = [
   ["Medical records", "totalMedicalRecords", HeartPulse, "red"],
 ];
 
+/* =========================================================
+   FORMAT VALUE
+   ========================================================= */
+
 function formatValue(key, value) {
   if (key === "totalRevenue") {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
       maximumFractionDigits: 0,
-    }).format(value || 0);
+    }).format(Number(value) || 0);
   }
 
-  return (value || 0).toLocaleString("en-IN");
+  return (Number(value) || 0).toLocaleString("en-IN");
 }
+
+/* =========================================================
+   GREETING
+   ========================================================= */
 
 function getGreeting() {
   const hour = new Date().getHours();
@@ -56,21 +72,34 @@ function getGreeting() {
   return "Good night";
 }
 
+/* =========================================================
+   OWNER DASHBOARD
+   ========================================================= */
+
 export default function OwnerDashboard() {
   const [data, setData] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   const [refreshing, setRefreshing] = React.useState(false);
   const [error, setError] = React.useState("");
 
+  /* =======================================================
+     LOAD DASHBOARD STATS
+     ======================================================= */
+
   const loadStats = React.useCallback(async (refresh = false) => {
-    setRefreshing(refresh);
-    setLoading(!refresh);
+    if (refresh) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+
     setError("");
 
     try {
       const response = await fetch(
         `${API_BASE}/owner/dashboard/stats`,
         {
+          method: "GET",
           credentials: "include",
           headers: {
             Accept: "application/json",
@@ -80,25 +109,47 @@ export default function OwnerDashboard() {
 
       const result = await response.json().catch(() => ({}));
 
-      if (!response.ok || !result.success) {
+      if (!response.ok) {
         throw new Error(
-          result.message || "Unable to load platform statistics."
+          result?.message ||
+            `Dashboard request failed (${response.status})`
+        );
+      }
+
+      if (!result?.success) {
+        throw new Error(
+          result?.message ||
+            "Unable to load platform statistics."
         );
       }
 
       setData(result);
     } catch (loadError) {
       console.error("OWNER DASHBOARD ERROR:", loadError);
-      setError(loadError.message);
+
+      setData(null);
+
+      setError(
+        loadError?.message ||
+          "Unable to connect to the owner dashboard."
+      );
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   }, []);
 
+  /* =======================================================
+     INITIAL LOAD
+     ======================================================= */
+
   React.useEffect(() => {
-    loadStats();
+    loadStats(false);
   }, [loadStats]);
+
+  /* =======================================================
+     LOADING SCREEN
+     ======================================================= */
 
   if (loading) {
     return (
@@ -108,12 +159,26 @@ export default function OwnerDashboard() {
     );
   }
 
+  /* =======================================================
+     DATA
+     ======================================================= */
+
   const stats = data?.stats || {};
-  const recentTenants = (data?.tenants || []).slice(0, 5);
+
+  const recentTenants = Array.isArray(data?.tenants)
+    ? data.tenants.slice(0, 5)
+    : [];
+
+  /* =======================================================
+     UI
+     ======================================================= */
 
   return (
     <div className="owner-dashboard">
-      {/* HEADER */}
+      {/* ===================================================
+          HEADER
+          =================================================== */}
+
       <header className="owner-dashboard-header">
         <div>
           <span className="owner-dashboard-label">
@@ -125,66 +190,92 @@ export default function OwnerDashboard() {
           </h1>
 
           <p>
-            Monitor every farm, user and goat from one secure dashboard.
+            Monitor every farm, user and goat from one secure
+            dashboard.
           </p>
         </div>
 
         <button
+          type="button"
           className="owner-refresh-btn"
           onClick={() => loadStats(true)}
           disabled={refreshing}
         >
           <RefreshCw
             size={16}
-            className={refreshing ? "refresh-spinning" : ""}
+            className={
+              refreshing ? "refresh-spinning" : ""
+            }
           />
 
-          {refreshing ? "Refreshing..." : "Refresh"}
+          {refreshing
+            ? "Refreshing..."
+            : "Refresh"}
         </button>
       </header>
 
-      {/* ERROR */}
+      {/* ===================================================
+          ERROR
+          =================================================== */}
+
       {error && (
         <div className="owner-dashboard-error">
           <span>{error}</span>
 
-          <button onClick={() => loadStats()}>
+          <button
+            type="button"
+            onClick={() => loadStats(false)}
+          >
             Try again
           </button>
         </div>
       )}
 
-      {/* KPI CARDS */}
+      {/* ===================================================
+          KPI CARDS
+          =================================================== */}
+
       <section className="owner-kpi-grid">
-        {cards.map(([label, key, Icon, tone]) => (
-          <article
-            className={`owner-kpi-card ${tone}`}
-            key={key}
-          >
-            <div className="owner-kpi-icon">
-              <Icon size={20} />
-            </div>
+        {cards.map(
+          ([label, key, Icon, tone]) => (
+            <article
+              className={`owner-kpi-card ${tone}`}
+              key={key}
+            >
+              <div className="owner-kpi-icon">
+                <Icon size={20} />
+              </div>
 
-            <div className="owner-kpi-content">
-              <span>{label}</span>
+              <div className="owner-kpi-content">
+                <span>{label}</span>
 
-              <strong>
-                {formatValue(key, stats[key])}
-              </strong>
+                <strong>
+                  {formatValue(
+                    key,
+                    stats[key]
+                  )}
+                </strong>
 
-              {key === "onlineUsers" && (
-                <small>
-                  Active in the last 15 minutes
-                </small>
-              )}
-            </div>
-          </article>
-        ))}
+                {key === "onlineUsers" && (
+                  <small>
+                    Active in the last 15 minutes
+                  </small>
+                )}
+              </div>
+            </article>
+          )
+        )}
       </section>
 
-      {/* OVERVIEW */}
+      {/* ===================================================
+          OVERVIEW
+          =================================================== */}
+
       <section className="owner-overview-grid">
-        {/* RECENT FARMS */}
+        {/* =================================================
+            RECENT FARMS
+            ================================================= */}
+
         <div className="owner-panel">
           <div className="owner-panel-heading">
             <div>
@@ -192,7 +283,9 @@ export default function OwnerDashboard() {
                 FARMS
               </span>
 
-              <h2>Recent farm accounts</h2>
+              <h2>
+                Recent farm accounts
+              </h2>
             </div>
 
             <span className="owner-panel-count">
@@ -205,59 +298,92 @@ export default function OwnerDashboard() {
               No farm accounts found.
             </p>
           ) : (
-            recentTenants.map((tenant) => (
-              <div
-                className="owner-tenant-row"
-                key={tenant.id}
-              >
-                <div className="owner-tenant-avatar">
-                  {tenant.name?.charAt(0)?.toUpperCase() || "F"}
-                </div>
+            recentTenants.map((tenant) => {
+              const tenantId =
+                tenant?.id ||
+                tenant?._id ||
+                tenant?.tenantId ||
+                tenant?.name;
 
-                <div>
-                  <strong>{tenant.name}</strong>
+              const tenantName =
+                tenant?.name || "Unnamed Farm";
 
-                  <span>
-                    {tenant.userCount || 0} users
+              const firstLetter =
+                tenantName
+                  .charAt(0)
+                  .toUpperCase() || "F";
+
+              const status =
+                tenant?.status || "Inactive";
+
+              return (
+                <div
+                  className="owner-tenant-row"
+                  key={tenantId}
+                >
+                  <div className="owner-tenant-avatar">
+                    {firstLetter}
+                  </div>
+
+                  <div>
+                    <strong>
+                      {tenantName}
+                    </strong>
+
+                    <span>
+                      {tenant?.userCount || 0} users
+                    </span>
+                  </div>
+
+                  <span
+                    className={`owner-status ${
+                      String(status).toLowerCase()
+                    }`}
+                  >
+                    {status}
                   </span>
                 </div>
-
-                <span
-                  className={`owner-status ${
-                    tenant.status?.toLowerCase() || "inactive"
-                  }`}
-                >
-                  {tenant.status || "Inactive"}
-                </span>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
 
-        {/* SYSTEM HEALTH */}
+        {/* =================================================
+            SYSTEM HEALTH
+            ================================================= */}
+
         <div className="owner-panel owner-health-panel">
           <span className="owner-dashboard-label">
             SYSTEM HEALTH
           </span>
 
           <h2>
-            Everything is connected
+            {error
+              ? "Connection issue"
+              : "Everything is connected"}
           </h2>
 
           <div className="owner-health">
-            <span className="owner-health-dot" />
+            <span
+              className={`owner-health-dot ${
+                error
+                  ? "owner-health-dot-error"
+                  : ""
+              }`}
+            />
 
-            Live API and database
+            {error
+              ? "API connection unavailable"
+              : "Live API and database"}
           </div>
 
           <p>
-            All platform metrics are loaded from your live
-            SelSolve database. Use the navigation to inspect
-            users, subscriptions and farms.
+            {error
+              ? "The dashboard could not load the latest platform metrics. Check the backend connection and try again."
+              : "All platform metrics are loaded from your live SelSolve database. Use the navigation to inspect users, subscriptions and farms."}
           </p>
         </div>
       </section>
     </div>
   );
 }
-
