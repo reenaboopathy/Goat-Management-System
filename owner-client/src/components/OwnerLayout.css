@@ -1,0 +1,771 @@
+/* =========================================================
+   SELSOLVE — OWNER PORTAL
+   Premium SaaS Dashboard UI
+========================================================= */
+
+:root {
+  --owner-primary: #2563eb;
+  --owner-primary-dark: #1d4ed8;
+  --owner-primary-soft: #eff6ff;
+
+  --owner-bg: #f5f7fb;
+  --owner-sidebar: #ffffff;
+  --owner-card: #ffffff;
+
+  --owner-text: #111827;
+  --owner-text-secondary: #64748b;
+  --owner-text-muted: #94a3b8;
+
+  --owner-border: #e8edf3;
+
+  --owner-sidebar-width: 258px;
+  --owner-topbar-height: 72px;
+
+  --owner-radius: 14px;
+
+  --owner-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
+}
+
+/* =========================================================
+   RESET
+========================================================= */
+
+.owner-shell,
+.owner-shell *,
+.owner-shell *::before,
+.owner-shell *::after {
+  box-sizing: border-box;
+}
+
+.owner-shell {
+  min-height: 100vh;
+  background: var(--owner-bg);
+  color: var(--owner-text);
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif;
+}
+
+/* =========================================================
+   MAIN SHELL
+========================================================= */
+
+.owner-shell {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.owner-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+
+  width: var(--owner-sidebar-width);
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+
+  background: var(--owner-sidebar);
+
+  border-right: 1px solid var(--owner-border);
+
+  z-index: 1000;
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+/* =========================================================
+   SIDEBAR TOP
+========================================================= */
+
+.owner-sidebar-top {
+  height: var(--owner-topbar-height);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 22px;
+
+  border-bottom: 1px solid var(--owner-border);
+}
+
+.owner-logo-area {
+  display: flex;
+  align-items: center;
+}
+
+.owner-logo {
+  display: block;
+
+  width: 142px;
+  height: auto;
+
+  max-height: 42px;
+
+  object-fit: contain;
+}
+
+/* =========================================================
+   MOBILE CLOSE BUTTON
+========================================================= */
+
+.owner-close-btn {
+  display: none;
+
+  width: 36px;
+  height: 36px;
+
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--owner-border);
+  border-radius: 9px;
+
+  background: #fff;
+  color: #64748b;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.owner-close-btn:hover {
+  color: var(--owner-text);
+  background: #f8fafc;
+  border-color: #d8dee8;
+}
+
+/* =========================================================
+   SIDEBAR LABEL
+========================================================= */
+
+.owner-sidebar-label {
+  padding: 26px 22px 10px;
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+
+  color: #a0a9b8;
+}
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+.owner-nav {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+
+  padding: 0 12px;
+}
+
+.owner-nav-item {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  min-height: 46px;
+
+  padding: 0 13px;
+
+  gap: 12px;
+
+  color: #64748b;
+  text-decoration: none;
+
+  border-radius: 10px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.owner-nav-item:hover {
+  color: #1e293b;
+  background: #f8fafc;
+}
+
+.owner-nav-item.active {
+  color: var(--owner-primary);
+  background: var(--owner-primary-soft);
+}
+
+.owner-nav-item.active::before {
+  content: "";
+
+  position: absolute;
+  left: -12px;
+  top: 9px;
+  bottom: 9px;
+
+  width: 3px;
+
+  border-radius: 0 5px 5px 0;
+
+  background: var(--owner-primary);
+}
+
+.owner-nav-icon {
+  width: 22px;
+  height: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+}
+
+.owner-nav-item.active .owner-nav-icon {
+  color: var(--owner-primary);
+}
+
+/* =========================================================
+   SIDEBAR BOTTOM
+========================================================= */
+
+.owner-sidebar-bottom {
+  margin-top: auto;
+
+  padding: 16px;
+
+  border-top: 1px solid var(--owner-border);
+}
+
+/* =========================================================
+   ACCOUNT CARD
+========================================================= */
+
+.owner-account-card {
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+
+  padding: 11px;
+
+  margin-bottom: 10px;
+
+  background: #f8fafc;
+
+  border: 1px solid #edf1f5;
+
+  border-radius: 12px;
+}
+
+.owner-avatar {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 11px;
+
+  background: linear-gradient(
+    135deg,
+    #2563eb,
+    #4f46e5
+  );
+
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 800;
+
+  box-shadow:
+    0 5px 12px rgba(37, 99, 235, 0.2);
+}
+
+.owner-account-info {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+.owner-account-info strong {
+  display: block;
+
+  overflow: hidden;
+
+  color: #1e293b;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.owner-account-info span {
+  display: block;
+
+  overflow: hidden;
+
+  color: #94a3b8;
+
+  font-size: 11px;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+.owner-logout-btn {
+  width: 100%;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #64748b;
+
+  font-size: 13px;
+  font-weight: 650;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.owner-logout-btn:hover {
+  color: #dc2626;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.owner-logout-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.owner-main {
+  width: calc(100% - var(--owner-sidebar-width));
+  min-height: 100vh;
+
+  margin-left: var(--owner-sidebar-width);
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================================================
+   TOPBAR
+========================================================= */
+
+.owner-topbar {
+  position: sticky;
+  top: 0;
+
+  height: var(--owner-topbar-height);
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 30px;
+
+  background: rgba(255, 255, 255, 0.94);
+
+  border-bottom: 1px solid var(--owner-border);
+
+  backdrop-filter: blur(12px);
+
+  z-index: 900;
+}
+
+.owner-topbar-left {
+  display: flex;
+  align-items: center;
+}
+
+.owner-page-context {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+}
+
+.owner-page-context span {
+  color: #94a3b8;
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.owner-page-context strong {
+  color: #1e293b;
+
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.owner-topbar-right {
+  margin-left: auto;
+}
+
+/* =========================================================
+   TOP USER
+========================================================= */
+
+.owner-top-user {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+}
+
+.owner-top-avatar {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: var(--owner-primary-soft);
+
+  border: 1px solid #dbeafe;
+
+  color: var(--owner-primary);
+
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.owner-top-user > div:last-child {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+}
+
+.owner-top-user strong {
+  color: #1e293b;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.owner-top-user span {
+  color: #94a3b8;
+
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* =========================================================
+   MOBILE MENU
+========================================================= */
+
+.owner-menu-btn {
+  display: none;
+
+  width: 40px;
+  height: 40px;
+
+  align-items: center;
+  justify-content: center;
+
+  margin-right: 13px;
+
+  border: 1px solid var(--owner-border);
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #475569;
+
+  cursor: pointer;
+}
+
+.owner-menu-btn:hover {
+  background: #f8fafc;
+}
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.owner-content {
+  flex: 1;
+
+  width: 100%;
+
+  padding: 30px;
+}
+
+.owner-page-context strong { letter-spacing: -.2px; }
+.owner-topbar { box-shadow: 0 8px 24px rgba(15, 23, 42, .04); }
+
+/* =========================================================
+   AUTH LOADING
+========================================================= */
+
+.owner-auth-loading {
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background:
+    radial-gradient(
+      circle at top left,
+      #eff6ff 0,
+      transparent 35%
+    ),
+    #f5f7fb;
+}
+
+.owner-auth-loading-card {
+  width: min(100%, 390px);
+
+  padding: 38px 32px;
+
+  text-align: center;
+
+  background: #ffffff;
+
+  border: 1px solid var(--owner-border);
+
+  border-radius: 20px;
+
+  box-shadow:
+    0 20px 60px rgba(15, 23, 42, 0.08);
+}
+
+.owner-auth-loading-card h3 {
+  margin: 18px 0 7px;
+
+  color: #111827;
+
+  font-size: 18px;
+  font-weight: 750;
+}
+
+.owner-auth-loading-card p {
+  margin: 0;
+
+  color: #94a3b8;
+
+  font-size: 13px;
+}
+
+.owner-auth-spinner {
+  width: 36px;
+  height: 36px;
+
+  margin: 0 auto;
+
+  border: 3px solid #e5e7eb;
+  border-top-color: var(--owner-primary);
+
+  border-radius: 50%;
+
+  animation: ownerSpinner 0.8s linear infinite;
+}
+
+@keyframes ownerSpinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — TABLET
+========================================================= */
+
+@media (max-width: 1100px) {
+  :root {
+    --owner-sidebar-width: 230px;
+  }
+
+  .owner-content {
+    padding: 24px;
+  }
+
+  .owner-topbar {
+    padding: 0 24px;
+  }
+
+  .owner-logo {
+    width: 130px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — MOBILE
+========================================================= */
+
+@media (max-width: 800px) {
+  .owner-sidebar {
+    transform: translateX(-100%);
+
+    box-shadow: none;
+  }
+
+  .owner-sidebar.open {
+    transform: translateX(0);
+
+    box-shadow:
+      12px 0 40px rgba(15, 23, 42, 0.15);
+  }
+
+  .owner-main {
+    width: 100%;
+
+    margin-left: 0;
+  }
+
+  .owner-menu-btn {
+    display: flex;
+  }
+
+  .owner-close-btn {
+    display: flex;
+  }
+
+  .owner-topbar {
+    padding: 0 18px;
+  }
+
+  .owner-content {
+    padding: 20px 16px;
+  }
+
+  .owner-top-user > div:last-child {
+    display: none;
+  }
+
+  .owner-top-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .owner-page-context strong {
+    font-size: 14px;
+  }
+
+  .owner-page-context span {
+    font-size: 10px;
+  }
+}
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+  .owner-sidebar {
+    width: min(290px, 86vw);
+  }
+
+  .owner-topbar {
+    height: 64px;
+  }
+
+  .owner-content {
+    padding: 16px 12px;
+  }
+
+  .owner-sidebar-top {
+    height: 64px;
+  }
+
+  .owner-logo {
+    width: 125px;
+  }
+}
+
+/* =========================================================
+   OVERLAY
+========================================================= */
+
+.owner-overlay {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(15, 23, 42, 0.42);
+
+  backdrop-filter: blur(2px);
+
+  z-index: 950;
+}
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+.owner-nav-item:focus-visible,
+.owner-logout-btn:focus-visible,
+.owner-menu-btn:focus-visible,
+.owner-close-btn:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.18);
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+.owner-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.owner-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.owner-sidebar::-webkit-scrollbar-thumb {
+  background: #dbe2ea;
+  border-radius: 10px;
+}

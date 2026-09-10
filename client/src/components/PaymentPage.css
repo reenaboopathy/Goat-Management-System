@@ -1,0 +1,129 @@
+.payment-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background: #f5f7fb;
+  font-family: Arial, sans-serif;
+}
+
+.payment-card {
+  width: 100%;
+  max-width: 430px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 35px 28px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.payment-icon {
+  width: 65px;
+  height: 65px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8f0ff;
+  color: #2563eb;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.payment-card h1 {
+  margin: 0;
+  font-size: 26px;
+  color: #111827;
+}
+
+.payment-description {
+  margin: 12px 0 25px;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.amount-box,
+.upi-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+}
+
+.amount-box span,
+.upi-info span {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.amount-box strong {
+  color: #111827;
+  font-size: 24px;
+}
+
+.upi-info strong {
+  color: #111827;
+  font-size: 14px;
+}
+
+.upi-pay-button {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 15px;
+  background: #2563eb;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.upi-pay-button:hover {
+  background: #1d4ed8;
+}
+
+.upi-pay-button:active {
+  transform: scale(0.98);
+}
+
+.upi-pay-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.upi-note {
+  margin-top: 18px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.secure-text {
+  margin-top: 20px;
+  color: #16a34a;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .payment-page {
+    padding: 12px;
+  }
+
+  .payment-card {
+    padding: 28px 20px;
+    border-radius: 16px;
+  }
+
+  .payment-card h1 {
+    font-size: 23px;
+  }
+}

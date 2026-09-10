@@ -1,0 +1,1086 @@
+
+/* =========================================================
+   OWNER TENANTS PAGE
+========================================================= */
+
+.owner-tenants-page {
+  min-height: 100%;
+  padding: 30px;
+  background: #f7f9fc;
+  color: #172033;
+  box-sizing: border-box;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.owner-tenants-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 26px;
+}
+
+.owner-tenants-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 9px;
+  color: #7c879b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.owner-tenants-breadcrumb span {
+  color: #c4cad5;
+}
+
+.owner-tenants-header h1 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.15;
+  font-weight: 750;
+  letter-spacing: -0.8px;
+  color: #101828;
+}
+
+.owner-tenants-header p {
+  margin: 8px 0 0;
+  color: #7a8496;
+  font-size: 14px;
+}
+
+/* =========================================================
+   REFRESH BUTTON
+========================================================= */
+
+.owner-tenants-refresh {
+  height: 42px;
+  padding: 0 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  border: 1px solid #dfe4ec;
+  border-radius: 10px;
+
+  background: #ffffff;
+  color: #344054;
+
+  font-size: 13px;
+  font-weight: 650;
+
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.owner-tenants-refresh:hover:not(:disabled) {
+  border-color: #cbd5e1;
+  background: #fafbfc;
+  box-shadow: 0 5px 16px rgba(16, 24, 40, 0.07);
+  transform: translateY(-1px);
+}
+
+.owner-tenants-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.owner-tenants-spin {
+  animation: ownerTenantsSpin 0.9s linear infinite;
+}
+
+@keyframes ownerTenantsSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   STATISTICS
+========================================================= */
+
+.owner-tenants-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.owner-tenant-stat {
+  min-height: 92px;
+  padding: 18px;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  background: #ffffff;
+  border: 1px solid #e8ecf2;
+  border-radius: 14px;
+
+  box-shadow:
+    0 3px 12px rgba(16, 24, 40, 0.035);
+
+  box-sizing: border-box;
+}
+
+.owner-tenant-stat-icon {
+  width: 44px;
+  height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.owner-tenant-stat-icon.blue {
+  background: #edf4ff;
+  color: #2563eb;
+}
+
+.owner-tenant-stat-icon.green {
+  background: #ecfdf3;
+  color: #16a34a;
+}
+
+.owner-tenant-stat-icon.red {
+  background: #fff1f2;
+  color: #e11d48;
+}
+
+.owner-tenant-stat-icon.purple {
+  background: #f4f0ff;
+  color: #7c3aed;
+}
+
+.owner-tenant-stat span {
+  display: block;
+  margin-bottom: 4px;
+  color: #7a8496;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.owner-tenant-stat strong {
+  display: block;
+  color: #111827;
+  font-size: 23px;
+  line-height: 1;
+  font-weight: 750;
+}
+
+/* =========================================================
+   MAIN CARD
+========================================================= */
+
+.owner-tenants-card {
+  overflow: hidden;
+
+  background: #ffffff;
+  border: 1px solid #e7ebf1;
+  border-radius: 16px;
+
+  box-shadow:
+    0 5px 20px rgba(16, 24, 40, 0.035);
+}
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.owner-tenants-toolbar {
+  min-height: 76px;
+  padding: 16px 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  border-bottom: 1px solid #edf0f4;
+}
+
+.owner-tenants-search {
+  width: min(380px, 100%);
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 0 13px;
+
+  background: #f8fafc;
+  border: 1px solid #e4e8ee;
+  border-radius: 10px;
+
+  color: #98a2b3;
+
+  box-sizing: border-box;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.owner-tenants-search:focus-within {
+  background: #ffffff;
+  border-color: #9dbcf7;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.owner-tenants-search input {
+  width: 100%;
+  height: 100%;
+
+  border: 0;
+  outline: 0;
+  background: transparent;
+
+  color: #344054;
+  font-size: 13px;
+}
+
+.owner-tenants-search input::placeholder {
+  color: #98a2b3;
+}
+
+.owner-tenants-filters {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  padding: 4px;
+
+  background: #f4f6f8;
+  border-radius: 9px;
+}
+
+.owner-tenants-filters button {
+  height: 34px;
+  padding: 0 13px;
+
+  border: 0;
+  border-radius: 7px;
+
+  background: transparent;
+  color: #667085;
+
+  font-size: 12px;
+  font-weight: 650;
+
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.owner-tenants-filters button:hover {
+  color: #344054;
+}
+
+.owner-tenants-filters button.active {
+  background: #ffffff;
+  color: #1d4ed8;
+  box-shadow: 0 2px 7px rgba(16, 24, 40, 0.08);
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.owner-tenants-error {
+  margin: 18px;
+  padding: 13px 15px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  background: #fff7f7;
+  border: 1px solid #ffd7dc;
+  border-radius: 11px;
+
+  color: #c2414f;
+}
+
+.owner-tenants-error > svg {
+  flex-shrink: 0;
+}
+
+.owner-tenants-error > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.owner-tenants-error strong {
+  font-size: 13px;
+}
+
+.owner-tenants-error span {
+  color: #8f5b61;
+  font-size: 12px;
+}
+
+.owner-tenants-error button {
+  padding: 8px 12px;
+
+  border: 1px solid #f0b8bf;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #b42332;
+
+  font-size: 12px;
+  font-weight: 650;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.owner-tenants-loading {
+  min-height: 300px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  text-align: center;
+}
+
+.owner-tenants-loader {
+  width: 31px;
+  height: 31px;
+
+  margin-bottom: 16px;
+
+  border: 3px solid #e8edf5;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+
+  animation: ownerTenantsSpin 0.8s linear infinite;
+}
+
+.owner-tenants-loading h3,
+.owner-tenants-empty h3 {
+  margin: 0;
+  color: #1d2939;
+  font-size: 15px;
+}
+
+.owner-tenants-loading p,
+.owner-tenants-empty p {
+  max-width: 400px;
+  margin: 7px 0 0;
+
+  color: #8a94a6;
+  font-size: 13px;
+}
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.owner-tenants-empty {
+  min-height: 300px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  text-align: center;
+}
+
+.owner-tenants-empty-icon {
+  width: 54px;
+  height: 54px;
+
+  margin-bottom: 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 15px;
+
+  background: #f2f5f9;
+  color: #8994a6;
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.owner-tenants-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.owner-tenants-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+
+.owner-tenants-table thead th {
+  height: 48px;
+  padding: 0 20px;
+
+  background: #fbfcfd;
+  border-bottom: 1px solid #edf0f4;
+
+  color: #7b8495;
+  text-align: left;
+
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.45px;
+}
+
+.owner-tenants-table tbody td {
+  height: 72px;
+  padding: 0 20px;
+
+  border-bottom: 1px solid #f0f2f5;
+
+  color: #475467;
+  font-size: 13px;
+}
+
+.owner-tenants-table tbody tr {
+  transition: background 0.18s ease;
+}
+
+.owner-tenants-table tbody tr:hover {
+  background: #fbfdff;
+}
+
+.owner-tenants-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* =========================================================
+   TENANT NAME
+========================================================= */
+
+.owner-tenant-name {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.owner-tenant-avatar {
+  width: 39px;
+  height: 39px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 11px;
+
+  background: #eef4ff;
+  color: #2563eb;
+
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.owner-tenant-name > div:last-child {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.owner-tenant-name strong {
+  color: #1d2939;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.owner-tenant-name span {
+  color: #98a2b3;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.owner-tenant-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  padding: 5px 9px;
+
+  border-radius: 20px;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.owner-tenant-status i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.owner-tenant-status.active {
+  background: #ecfdf3;
+  color: #15803d;
+}
+
+.owner-tenant-status.active i {
+  background: #22c55e;
+}
+
+.owner-tenant-status.inactive {
+  background: #fef2f2;
+  color: #b42318;
+}
+
+.owner-tenant-status.inactive i {
+  background: #ef4444;
+}
+
+/* =========================================================
+   USERS
+========================================================= */
+
+.owner-tenant-users {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  color: #475467;
+  font-weight: 650;
+}
+
+.owner-tenant-users svg {
+  color: #8b95a7;
+}
+
+/* =========================================================
+   DATE
+========================================================= */
+
+.owner-tenant-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  color: #667085;
+  white-space: nowrap;
+}
+
+.owner-tenant-date svg {
+  color: #98a2b3;
+}
+
+/* =========================================================
+   VIEW BUTTON
+========================================================= */
+
+.owner-tenant-view {
+  height: 34px;
+  padding: 0 12px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  border: 1px solid #dce3ee;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #344054;
+
+  font-size: 12px;
+  font-weight: 650;
+
+  cursor: pointer;
+
+  transition:
+    all 0.2s ease;
+}
+
+.owner-tenant-view:hover {
+  border-color: #9dbcf7;
+  background: #f4f8ff;
+  color: #1d4ed8;
+  box-shadow:
+    0 4px 12px rgba(37, 99, 235, 0.1);
+
+  transform: translateY(-1px);
+}
+
+.owner-tenant-view:active {
+  transform: translateY(0);
+}
+
+/* =========================================================
+   MODAL OVERLAY
+========================================================= */
+
+.owner-tenant-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background: rgba(15, 23, 42, 0.52);
+
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+
+  animation: ownerModalFade 0.2s ease;
+}
+
+@keyframes ownerModalFade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.owner-tenant-modal {
+  width: min(570px, 100%);
+  max-height: calc(100vh - 48px);
+
+  overflow-y: auto;
+
+  background: #ffffff;
+
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+
+  box-shadow:
+    0 30px 80px rgba(15, 23, 42, 0.24),
+    0 10px 30px rgba(15, 23, 42, 0.1);
+
+  animation: ownerModalSlide 0.25s ease;
+
+  scrollbar-width: thin;
+}
+
+@keyframes ownerModalSlide {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =========================================================
+   MODAL HEADER
+========================================================= */
+
+.owner-tenant-modal-header {
+  position: relative;
+
+  padding: 25px 26px 22px;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f7faff 0%,
+      #ffffff 62%
+    );
+
+  border-bottom: 1px solid #edf0f4;
+}
+
+.owner-tenant-modal-header::before {
+  content: "";
+
+  position: absolute;
+  left: 0;
+  top: 0;
+
+  width: 100%;
+  height: 3px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #2563eb,
+      #60a5fa,
+      #93c5fd
+    );
+}
+
+.owner-tenant-modal-header > div {
+  min-width: 0;
+}
+
+.owner-tenant-modal-header span {
+  display: block;
+  margin-bottom: 5px;
+
+  color: #7b8495;
+
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.65px;
+}
+
+.owner-tenant-modal-header h2 {
+  margin: 0;
+
+  color: #101828;
+
+  font-size: 22px;
+  line-height: 1.25;
+  font-weight: 750;
+  letter-spacing: -0.4px;
+
+  word-break: break-word;
+}
+
+.owner-tenant-modal-header > button {
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border: 1px solid #e4e8ee;
+  border-radius: 10px;
+
+  background: #ffffff;
+  color: #667085;
+
+  cursor: pointer;
+
+  transition:
+    all 0.2s ease;
+}
+
+.owner-tenant-modal-header > button:hover {
+  background: #f8fafc;
+  border-color: #d0d5dd;
+  color: #101828;
+
+  transform: rotate(4deg);
+}
+
+/* =========================================================
+   MODAL DETAILS
+========================================================= */
+
+.owner-tenant-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+
+  padding: 22px 26px;
+}
+
+.owner-tenant-details > div {
+  min-height: 72px;
+  padding: 14px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+
+  background: #fafbfc;
+  border: 1px solid #edf0f4;
+  border-radius: 12px;
+
+  box-sizing: border-box;
+}
+
+.owner-tenant-details > div:first-child {
+  background: #f7fbf8;
+  border-color: #e0f1e5;
+}
+
+.owner-tenant-details > div:nth-child(2) {
+  background: #f8faff;
+  border-color: #e3ebfa;
+}
+
+.owner-tenant-details span {
+  color: #8a94a6;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+  letter-spacing: 0.45px;
+}
+
+.owner-tenant-details strong {
+  color: #1d2939;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  word-break: break-word;
+}
+
+.owner-tenant-full-id {
+  font-family:
+    "SFMono-Regular",
+    Consolas,
+    "Liberation Mono",
+    monospace;
+
+  font-size: 11px !important;
+  color: #667085 !important;
+}
+
+/* =========================================================
+   TENANT USERS LIST
+========================================================= */
+
+.owner-tenant-users-list {
+  margin: 0 26px 25px;
+
+  padding: 18px;
+
+  background: #fbfcfe;
+
+  border: 1px solid #edf0f4;
+  border-radius: 14px;
+}
+
+.owner-tenant-users-list h3 {
+  margin: 0 0 13px;
+
+  color: #344054;
+
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.owner-tenant-user {
+  min-height: 54px;
+
+  display: flex;
+  align-items: center;
+  gap: 11px;
+
+  padding: 9px 0;
+
+  border-bottom: 1px solid #edf0f4;
+}
+
+.owner-tenant-user:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.owner-tenant-user:first-of-type {
+  padding-top: 0;
+}
+
+.owner-tenant-user-avatar {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 10px;
+
+  background: #eef4ff;
+  color: #2563eb;
+
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.owner-tenant-user > div:nth-child(2) {
+  min-width: 0;
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.owner-tenant-user strong {
+  color: #344054;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.owner-tenant-user span {
+  color: #98a2b3;
+
+  font-size: 10px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.owner-tenant-user em {
+  padding: 4px 8px;
+
+  border-radius: 20px;
+
+  background: #f1f5f9;
+  color: #64748b;
+
+  font-size: 9px;
+  font-weight: 750;
+
+  font-style: normal;
+  text-transform: capitalize;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 900px) {
+  .owner-tenants-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .owner-tenants-page {
+    padding: 20px;
+  }
+
+  .owner-tenants-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .owner-tenants-refresh {
+    width: 100%;
+  }
+
+  .owner-tenants-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .owner-tenants-search {
+    width: 100%;
+  }
+
+  .owner-tenants-filters {
+    width: 100%;
+  }
+
+  .owner-tenants-filters button {
+    flex: 1;
+  }
+
+  .owner-tenant-modal-overlay {
+    padding: 14px;
+  }
+
+  .owner-tenant-modal {
+    max-height: calc(100vh - 28px);
+    border-radius: 17px;
+  }
+
+  .owner-tenant-modal-header {
+    padding: 22px 19px 18px;
+  }
+
+  .owner-tenant-details {
+    padding: 17px 19px;
+    grid-template-columns: 1fr;
+  }
+
+  .owner-tenant-users-list {
+    margin: 0 19px 20px;
+  }
+}
+
+@media (max-width: 500px) {
+  .owner-tenants-page {
+    padding: 14px;
+  }
+
+  .owner-tenants-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .owner-tenants-header h1 {
+    font-size: 26px;
+  }
+
+  .owner-tenant-modal-header h2 {
+    font-size: 19px;
+  }
+
+  .owner-tenant-user em {
+    display: none;
+  }
+}

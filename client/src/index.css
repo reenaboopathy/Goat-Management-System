@@ -1,0 +1,96 @@
+:root {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  color: #1e1b18;
+  background: #f7f8f5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+input,
+select,
+textarea,
+button {
+  font-size: 16px;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+.app-shell {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.auth-shell {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.auth-shell-inner {
+  width: 100%;
+  max-width: 520px;
+}
+
+@media (max-width: 640px) {
+  .auth-shell {
+    padding: 16px 12px;
+  }
+
+  .auth-shell-inner {
+    padding: 10px;
+  }
+
+  .app-shell {
+    min-height: 100dvh;
+  }
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th {
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #7c8579;
+  padding: 8px 10px;
+  border-bottom: 2px solid #dde2da;
+}
+
+td {
+  padding: 10px;
+  border-bottom: 1px solid #dde2da;
+  font-size: 13.5px;
+  color: #1e1b18;
+}
