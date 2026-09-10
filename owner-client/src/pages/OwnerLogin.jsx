@@ -550,19 +550,4 @@ function OwnerLogin() {
 
 
 export default OwnerLogin;
-```
 
-### 🔥 But one thing VERY important
-
-இந்த code மட்டும் change பண்ணினா **Vercel production login immediately work ஆகாது**, because Vercel-ku **actual Render backend URL** தெரிஞ்சிருக்கணும்.
-
-Vercel → **Project → Settings → Environment Variables**
-
-Add:
-
-```text
-Name:
-VITE_API_URL
-
-Value:
-https://YOUR-ACTUAL-RENDER-URL.onrender.com/api
