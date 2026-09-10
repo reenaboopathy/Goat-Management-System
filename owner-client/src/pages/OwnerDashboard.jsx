@@ -1,389 +1,294 @@
-import React from "react";
+import React, { useState } from "react";
 import {
-  Activity,
-  Building2,
-  CalendarDays,
-  CircleDollarSign,
-  HeartPulse,
-  PawPrint,
-  RefreshCw,
-  Users,
+  Eye,
+  EyeOff,
+  LockKeyhole,
+  ShieldCheck,
+  UserRound,
+  Loader2,
 } from "lucide-react";
-import "./OwnerDashboard.css";
+import { useNavigate } from "react-router-dom";
+import "./OwnerLogin.css";
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
-/* =========================================================
-   API CONFIGURATION
-   ========================================================= */
+function OwnerLogin() {
+  const navigate = useNavigate();
 
-const API_BASE = (
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api"
-).replace(/\/$/, "");
+  const [form, setForm] = useState({
+    username: "",
+    password: "",
+  });
 
-/* =========================================================
-   DASHBOARD CARDS
-   ========================================================= */
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-const cards = [
-  ["Total users", "totalUsers", Users, "blue"],
-  ["Online now", "onlineUsers", Activity, "green"],
-  ["Registered goats", "totalGoats", PawPrint, "orange"],
-  ["Active farms", "activeTenants", Building2, "purple"],
-  ["Sales recorded", "totalSales", CircleDollarSign, "teal"],
-  ["Total revenue", "totalRevenue", CircleDollarSign, "blue"],
-  ["Farm events", "totalEvents", CalendarDays, "orange"],
-  ["Medical records", "totalMedicalRecords", HeartPulse, "red"],
-];
+  const handleChange = (event) => {
+    const { name, value } = event.target;
 
-/* =========================================================
-   FORMAT VALUE
-   ========================================================= */
+    setForm((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
 
-function formatValue(key, value) {
-  if (key === "totalRevenue") {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-      maximumFractionDigits: 0,
-    }).format(Number(value) || 0);
-  }
-
-  return (Number(value) || 0).toLocaleString("en-IN");
-}
-
-/* =========================================================
-   GREETING
-   ========================================================= */
-
-function getGreeting() {
-  const hour = new Date().getHours();
-
-  if (hour < 12) {
-    return "Good morning";
-  }
-
-  if (hour < 17) {
-    return "Good afternoon";
-  }
-
-  if (hour < 21) {
-    return "Good evening";
-  }
-
-  return "Good night";
-}
-
-/* =========================================================
-   OWNER DASHBOARD
-   ========================================================= */
-
-export default function OwnerDashboard() {
-  const [data, setData] = React.useState(null);
-  const [loading, setLoading] = React.useState(true);
-  const [refreshing, setRefreshing] = React.useState(false);
-  const [error, setError] = React.useState("");
-
-  /* =======================================================
-     LOAD DASHBOARD STATS
-     ======================================================= */
-
-  const loadStats = React.useCallback(async (refresh = false) => {
-    if (refresh) {
-      setRefreshing(true);
-    } else {
-      setLoading(true);
+    if (error) {
+      setError("");
     }
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
     setError("");
 
-    try {
-      const response = await fetch(
-        `${API_BASE}/owner/dashboard/stats`,
-        {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            Accept: "application/json",
-          },
-        }
-      );
+    if (!form.username.trim() || !form.password.trim()) {
+      setError("Username and password are required.");
+      return;
+    }
 
-      const result = await response.json().catch(() => ({}));
+    try {
+      setLoading(true);
+
+      const response = await fetch(`${API_BASE_URL}/owner/auth/login`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: form.username.trim(),
+          password: form.password.trim(),
+        }),
+      });
+
+      let data = {};
+
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
 
       if (!response.ok) {
         throw new Error(
-          result?.message ||
-            `Dashboard request failed (${response.status})`
+          data?.error ||
+            data?.message ||
+            "Login failed."
         );
       }
 
-      if (!result?.success) {
+      if (!data?.success) {
         throw new Error(
-          result?.message ||
-            "Unable to load platform statistics."
+          data?.error ||
+            data?.message ||
+            "Login failed."
         );
       }
 
-      setData(result);
-    } catch (loadError) {
-      console.error("OWNER DASHBOARD ERROR:", loadError);
+      localStorage.setItem("ownerAuthenticated", "true");
+      localStorage.setItem(
+        "ownerUser",
+        JSON.stringify(data.owner || {})
+      );
 
-      setData(null);
+      navigate("/owner/dashboard", {
+        replace: true,
+      });
+    } catch (err) {
+      console.error("OWNER LOGIN ERROR:", err);
 
       setError(
-        loadError?.message ||
-          "Unable to connect to the owner dashboard."
+        err?.message ||
+          "Unable to connect to SelSolve server."
       );
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
-  }, []);
-
-  /* =======================================================
-     INITIAL LOAD
-     ======================================================= */
-
-  React.useEffect(() => {
-    loadStats(false);
-  }, [loadStats]);
-
-  /* =======================================================
-     LOADING SCREEN
-     ======================================================= */
-
-  if (loading) {
-    return (
-      <div className="owner-dashboard-loading">
-        Loading platform overview...
-      </div>
-    );
-  }
-
-  /* =======================================================
-     DATA
-     ======================================================= */
-
-  const stats = data?.stats || {};
-
-  const recentTenants = Array.isArray(data?.tenants)
-    ? data.tenants.slice(0, 5)
-    : [];
-
-  /* =======================================================
-     UI
-     ======================================================= */
+  };
 
   return (
-    <div className="owner-dashboard">
-      {/* ===================================================
-          HEADER
-          =================================================== */}
+    <div className="owner-login">
+      <div className="login-background-shape login-shape-one" />
+      <div className="login-background-shape login-shape-two" />
 
-      <header className="owner-dashboard-header">
-        <div>
-          <span className="owner-dashboard-label">
-            PLATFORM OVERVIEW
-          </span>
-
-          <h1>
-            {getGreeting()}, SelSolve Admin
-          </h1>
-
-          <p>
-            Monitor every farm, user and goat from one secure
-            dashboard.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          className="owner-refresh-btn"
-          onClick={() => loadStats(true)}
-          disabled={refreshing}
-        >
-          <RefreshCw
-            size={16}
-            className={
-              refreshing ? "refresh-spinning" : ""
-            }
-          />
-
-          {refreshing
-            ? "Refreshing..."
-            : "Refresh"}
-        </button>
-      </header>
-
-      {/* ===================================================
-          ERROR
-          =================================================== */}
-
-      {error && (
-        <div className="owner-dashboard-error">
-          <span>{error}</span>
-
-          <button
-            type="button"
-            onClick={() => loadStats(false)}
-          >
-            Try again
-          </button>
-        </div>
-      )}
-
-      {/* ===================================================
-          KPI CARDS
-          =================================================== */}
-
-      <section className="owner-kpi-grid">
-        {cards.map(
-          ([label, key, Icon, tone]) => (
-            <article
-              className={`owner-kpi-card ${tone}`}
-              key={key}
-            >
-              <div className="owner-kpi-icon">
-                <Icon size={20} />
-              </div>
-
-              <div className="owner-kpi-content">
-                <span>{label}</span>
-
-                <strong>
-                  {formatValue(
-                    key,
-                    stats[key]
-                  )}
-                </strong>
-
-                {key === "onlineUsers" && (
-                  <small>
-                    Active in the last 15 minutes
-                  </small>
-                )}
-              </div>
-            </article>
-          )
-        )}
-      </section>
-
-      {/* ===================================================
-          OVERVIEW
-          =================================================== */}
-
-      <section className="owner-overview-grid">
-        {/* =================================================
-            RECENT FARMS
-            ================================================= */}
-
-        <div className="owner-panel">
-          <div className="owner-panel-heading">
-            <div>
-              <span className="owner-dashboard-label">
-                FARMS
-              </span>
-
-              <h2>
-                Recent farm accounts
-              </h2>
-            </div>
-
-            <span className="owner-panel-count">
-              {stats.totalTenants || 0} total
-            </span>
+      <div className="login-layout">
+        <div className="login-brand-panel">
+          <div className="login-brand-logo">
+            <img
+              src="/selsolve-logo.svg"
+              alt="SelSolve"
+              onError={(event) => {
+                event.currentTarget.style.display = "none";
+                event.currentTarget.parentElement.classList.add(
+                  "logo-fallback"
+                );
+              }}
+            />
+            <span>SS</span>
           </div>
 
-          {recentTenants.length === 0 ? (
-            <p className="owner-empty">
-              No farm accounts found.
-            </p>
-          ) : (
-            recentTenants.map((tenant) => {
-              const tenantId =
-                tenant?.id ||
-                tenant?._id ||
-                tenant?.tenantId ||
-                tenant?.name;
+          <div className="login-brand-name">SelSolve</div>
 
-              const tenantName =
-                tenant?.name || "Unnamed Farm";
-
-              const firstLetter =
-                tenantName
-                  .charAt(0)
-                  .toUpperCase() || "F";
-
-              const status =
-                tenant?.status || "Inactive";
-
-              return (
-                <div
-                  className="owner-tenant-row"
-                  key={tenantId}
-                >
-                  <div className="owner-tenant-avatar">
-                    {firstLetter}
-                  </div>
-
-                  <div>
-                    <strong>
-                      {tenantName}
-                    </strong>
-
-                    <span>
-                      {tenant?.userCount || 0} users
-                    </span>
-                  </div>
-
-                  <span
-                    className={`owner-status ${
-                      String(status).toLowerCase()
-                    }`}
-                  >
-                    {status}
-                  </span>
-                </div>
-              );
-            })
-          )}
-        </div>
-
-        {/* =================================================
-            SYSTEM HEALTH
-            ================================================= */}
-
-        <div className="owner-panel owner-health-panel">
-          <span className="owner-dashboard-label">
-            SYSTEM HEALTH
-          </span>
+          <div className="login-brand-line" />
 
           <h2>
-            {error
-              ? "Connection issue"
-              : "Everything is connected"}
+            Manage your platform
+            <br />
+            from one place.
           </h2>
 
-          <div className="owner-health">
-            <span
-              className={`owner-health-dot ${
-                error
-                  ? "owner-health-dot-error"
-                  : ""
-              }`}
-            />
+          <p>
+            Owner administration for your SelSolve
+            ecosystem, tenants and platform operations.
+          </p>
 
-            {error
-              ? "API connection unavailable"
-              : "Live API and database"}
+          <div className="login-feature">
+            <div>
+              <ShieldCheck size={17} />
+            </div>
+            <span>Secure platform administration</span>
+          </div>
+        </div>
+
+        <div className="login-form-side">
+          <div className="login-card">
+            <div className="login-mobile-brand">
+              <div className="login-mobile-logo">
+                <img
+                  src="/selsolve-logo.svg"
+                  alt="SelSolve"
+                  onError={(event) => {
+                    event.currentTarget.style.display = "none";
+                    event.currentTarget.parentElement.classList.add(
+                      "logo-fallback"
+                    );
+                  }}
+                />
+                <span>SS</span>
+              </div>
+
+              <strong>SelSolve</strong>
+            </div>
+
+            <div className="login-heading">
+              <span>OWNER ACCESS</span>
+              <h1>Welcome back</h1>
+              <p>
+                Sign in to continue to your SelSolve
+                owner portal.
+              </p>
+              <small className="login-access-note">
+                Use your platform owner credentials, not a farm user login.
+              </small>
+            </div>
+
+            {error && (
+              <div className="login-error">
+                {error}
+              </div>
+            )}
+
+            <form
+              className="login-form"
+              onSubmit={handleSubmit}
+            >
+              <div className="login-field">
+                <label htmlFor="username">Username</label>
+
+                <div className="login-input">
+                  <UserRound size={17} />
+
+                  <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    value={form.username}
+                    onChange={handleChange}
+                    placeholder="Enter username"
+                    autoComplete="username"
+                  />
+                </div>
+              </div>
+
+              <div className="login-field">
+                <label htmlFor="password">Password</label>
+
+                <div className="login-input">
+                  <LockKeyhole size={17} />
+
+                  <input
+                    id="password"
+                    name="password"
+                    type={
+                      showPassword
+                        ? "text"
+                        : "password"
+                    }
+                    value={form.password}
+                    onChange={handleChange}
+                    placeholder="Enter password"
+                    autoComplete="current-password"
+                  />
+
+                  <button
+                    type="button"
+                    className="login-password-toggle"
+                    onClick={() =>
+                      setShowPassword(
+                        (previous) => !previous
+                      )
+                    }
+                    aria-label={
+                      showPassword
+                        ? "Hide password"
+                        : "Show password"
+                    }
+                  >
+                    {showPassword ? (
+                      <EyeOff size={17} />
+                    ) : (
+                      <Eye size={17} />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="login-button"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Loader2
+                      size={17}
+                      className="spin"
+                    />
+                    Signing in...
+                  </>
+                ) : (
+                  "Sign in"
+                )}
+              </button>
+            </form>
+
+            <div className="login-footer">
+              <ShieldCheck size={15} />
+              <span>
+                Your connection is protected by
+                SelSolve authentication.
+              </span>
+            </div>
           </div>
 
-          <p>
-            {error
-              ? "The dashboard could not load the latest platform metrics. Check the backend connection and try again."
-              : "All platform metrics are loaded from your live SelSolve database. Use the navigation to inspect users, subscriptions and farms."}
+          <p className="login-copyright">
+            SelSolve Owner Portal
           </p>
         </div>
-      </section>
+      </div>
     </div>
   );
 }
+
+export default OwnerLogin;
