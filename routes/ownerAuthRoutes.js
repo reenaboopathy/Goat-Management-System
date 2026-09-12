@@ -1,3 +1,4 @@
+
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -42,22 +43,14 @@ router.post(
       const owner =
         await Owner.findOne({
           $or: [
-            { username: loginValue },
-            { email: loginValue },
+            {
+              username: loginValue,
+            },
+            {
+              email: loginValue,
+            },
           ],
         });
-
-      /* =====================================================
-         TEMPORARY DEBUG
-         This does NOT print the password.
-      ===================================================== */
-
-      console.log("OWNER LOGIN DEBUG:", {
-        loginValue,
-        ownerFound: !!owner,
-        ownerUsername: owner?.username,
-        ownerStatus: owner?.status,
-      });
 
       if (!owner) {
         return res.status(401).json({
@@ -80,17 +73,6 @@ router.post(
           String(password).trim(),
           owner.password
         );
-
-      /* =====================================================
-         TEMPORARY DEBUG
-         Only shows true/false.
-         Password itself is NEVER logged.
-      ===================================================== */
-
-      console.log("OWNER PASSWORD DEBUG:", {
-        passwordMatch,
-        passwordHashExists: !!owner.password,
-      });
 
       if (!passwordMatch) {
         return res.status(401).json({
@@ -267,10 +249,6 @@ router.put(
   "/settings/password",
   async (req, res) => {
     try {
-      /* -----------------------------------------
-         Get owner token
-      ----------------------------------------- */
-
       const token =
         req.cookies?.[
           OWNER_COOKIE_NAME
@@ -283,11 +261,6 @@ router.put(
             "Owner authentication required.",
         });
       }
-
-
-      /* -----------------------------------------
-         Verify JWT
-      ----------------------------------------- */
 
       const decoded =
         jwt.verify(
@@ -306,11 +279,6 @@ router.put(
         });
       }
 
-
-      /* -----------------------------------------
-         Find owner
-      ----------------------------------------- */
-
       const owner =
         await Owner.findById(
           decoded.ownerId
@@ -324,11 +292,6 @@ router.put(
         });
       }
 
-
-      /* -----------------------------------------
-         Get passwords
-      ----------------------------------------- */
-
       const currentPassword =
         String(
           req.body?.currentPassword ||
@@ -341,11 +304,6 @@ router.put(
           ""
         ).trim();
 
-
-      /* -----------------------------------------
-         Required validation
-      ----------------------------------------- */
-
       if (
         !currentPassword ||
         !newPassword
@@ -357,11 +315,6 @@ router.put(
         });
       }
 
-
-      /* -----------------------------------------
-         Password length
-      ----------------------------------------- */
-
       if (
         newPassword.length < 8
       ) {
@@ -371,11 +324,6 @@ router.put(
             "New password must be at least 8 characters.",
         });
       }
-
-
-      /* -----------------------------------------
-         Verify current password
-      ----------------------------------------- */
 
       const passwordMatch =
         await bcrypt.compare(
@@ -391,11 +339,6 @@ router.put(
         });
       }
 
-
-      /* -----------------------------------------
-         Prevent same password
-      ----------------------------------------- */
-
       const samePassword =
         await bcrypt.compare(
           newPassword,
@@ -410,11 +353,6 @@ router.put(
         });
       }
 
-
-      /* -----------------------------------------
-         Hash new password
-      ----------------------------------------- */
-
       const hashedPassword =
         await bcrypt.hash(
           newPassword,
@@ -424,17 +362,7 @@ router.put(
       owner.password =
         hashedPassword;
 
-
-      /* -----------------------------------------
-         Save owner
-      ----------------------------------------- */
-
       await owner.save();
-
-
-      /* -----------------------------------------
-         Success
-      ----------------------------------------- */
 
       return res.json({
         success: true,
@@ -491,5 +419,9 @@ router.post(
   }
 );
 
+
+/* =========================================================
+   EXPORT ROUTER
+========================================================= */
 
 export default router;
