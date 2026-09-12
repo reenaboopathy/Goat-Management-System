@@ -1,4 +1,3 @@
-
 import "dotenv/config";
 
 import express from "express";
@@ -23,6 +22,7 @@ import milkRecordRoutes from "./routes/milkRecordRoutes.js";
 import subscriptionRoutes from "./routes/subscriptionRoutes.js";
 import ownerAuthRoutes from "./routes/ownerAuthRoutes.js";
 import ownerAdminRoutes from "./routes/ownerAdminRoutes.js";
+
 import { requireOwner } from "./middleware/authMiddleware.js";
 
 // =========================================================
@@ -41,8 +41,7 @@ const app = express();
 // CONFIG
 // =========================================================
 
-const PORT =
-  process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 
 const MONGO_URI =
   process.env.MONGO_URI ||
@@ -103,38 +102,28 @@ app.use(cookieParser());
 // REQUEST LOGGER
 // =========================================================
 
-app.use(
-  (req, res, next) => {
-    const start = Date.now();
+app.use((req, res, next) => {
+  const start = Date.now();
 
-    res.on(
-      "finish",
-      () => {
-        const duration =
-          Date.now() - start;
+  res.on("finish", () => {
+    const duration = Date.now() - start;
 
-        if (
-          req.originalUrl.startsWith(
-            "/api"
-          ) &&
-          req.originalUrl !==
-            "/api/scale/status"
-        ) {
-          console.log(
-            `[${new Date()
-              .toISOString()
-              .slice(
-                11,
-                19
-              )}] ${req.method} ${req.originalUrl} - ${res.statusCode} (${duration}ms)`
-          );
-        }
-      }
-    );
+    if (
+      req.originalUrl.startsWith("/api") &&
+      req.originalUrl !== "/api/scale/status"
+    ) {
+      console.log(
+        `[${new Date()
+          .toISOString()
+          .slice(11, 19)}] ${req.method} ${
+          req.originalUrl
+        } - ${res.statusCode} (${duration}ms)`
+      );
+    }
+  });
 
-    next();
-  }
-);
+  next();
+});
 
 // =========================================================
 // DATABASE
@@ -143,30 +132,17 @@ app.use(
 async function connectDatabase() {
   try {
     console.log("");
-    console.log(
-      "=========================================="
-    );
-    console.log(
-      "Connecting to MongoDB..."
-    );
-    console.log(
-      "=========================================="
-    );
+    console.log("==========================================");
+    console.log("Connecting to MongoDB...");
+    console.log("==========================================");
 
-    console.log(
-      `MongoDB URL: ${MONGO_URI}`
-    );
+    console.log(`MongoDB URL: ${MONGO_URI}`);
 
-    await mongoose.connect(
-      MONGO_URI,
-      {
-        serverSelectionTimeoutMS: 10000,
-      }
-    );
+    await mongoose.connect(MONGO_URI, {
+      serverSelectionTimeoutMS: 10000,
+    });
 
-    console.log(
-      "MongoDB connected successfully."
-    );
+    console.log("MongoDB connected successfully.");
 
     console.log(
       `Database: ${mongoose.connection.name}`
@@ -176,14 +152,9 @@ async function connectDatabase() {
       `Host: ${mongoose.connection.host}`
     );
 
-    console.log(
-      "REAL MONGODB MODE: ENABLED"
-    );
+    console.log("REAL MONGODB MODE: ENABLED");
 
-    console.log(
-      "=========================================="
-    );
-
+    console.log("==========================================");
     console.log("");
   } catch (error) {
     console.error("");
@@ -191,20 +162,16 @@ async function connectDatabase() {
       "=========================================="
     );
 
-    console.error(
-      "MONGODB CONNECTION FAILED"
-    );
+    console.error("MONGODB CONNECTION FAILED");
 
     console.error(
       "=========================================="
     );
 
-    console.error(
-      error.message
-    );
+    console.error(error.message);
 
     console.error(
-      "Make sure MongoDB is running."
+      "Make sure MongoDB is running or MONGO_URI is configured."
     );
 
     process.exit(1);
@@ -215,33 +182,25 @@ async function connectDatabase() {
 // HEALTH
 // =========================================================
 
-app.get(
-  "/api/health",
-  (req, res) => {
-    const connected =
-      mongoose.connection
-        .readyState === 1;
+app.get("/api/health", (req, res) => {
+  const connected =
+    mongoose.connection.readyState === 1;
 
-    return res.json({
-      status: "ok",
+  return res.json({
+    status: "ok",
 
-      database:
-        connected
-          ? "connected"
-          : "disconnected",
+    database: connected
+      ? "connected"
+      : "disconnected",
 
-      databaseName:
-        mongoose.connection
-          .name || null,
+    databaseName:
+      mongoose.connection.name || null,
 
-      timestamp:
-        new Date().toISOString(),
+    timestamp: new Date().toISOString(),
 
-      service:
-        "SelSolve Unified API",
-    });
-  }
-);
+    service: "SelSolve Unified API",
+  });
+});
 
 // =========================================================
 // TENANTS
@@ -252,15 +211,13 @@ app.get(
   requireOwner,
   async (req, res) => {
     try {
-      const tenants =
-        await Tenant.find().sort({
-          createdAt: -1,
-        });
+      const tenants = await Tenant.find().sort({
+        createdAt: -1,
+      });
 
       return res.json({
         success: true,
-        count:
-          tenants.length,
+        count: tenants.length,
         tenants,
       });
     } catch (error) {
@@ -271,8 +228,7 @@ app.get(
 
       return res.status(500).json({
         success: false,
-        error:
-          "Unable to load tenants",
+        error: "Unable to load tenants",
       });
     }
   }
@@ -283,10 +239,7 @@ app.post(
   requireOwner,
   async (req, res) => {
     try {
-      const tenant =
-        new Tenant(
-          req.body
-        );
+      const tenant = new Tenant(req.body);
 
       await tenant.save();
 
@@ -296,8 +249,7 @@ app.post(
 
       return res.status(201).json({
         success: true,
-        message:
-          "Tenant created successfully",
+        message: "Tenant created successfully",
         tenant,
       });
     } catch (error) {
@@ -325,8 +277,23 @@ app.use(
   authRoutes
 );
 
-app.use("/api/owner/auth", ownerAuthRoutes);
-app.use("/api/owner", ownerAdminRoutes);
+// =========================================================
+// OWNER AUTH
+// =========================================================
+
+app.use(
+  "/api/owner/auth",
+  ownerAuthRoutes
+);
+
+// =========================================================
+// OWNER ADMIN
+// =========================================================
+
+app.use(
+  "/api/owner",
+  ownerAdminRoutes
+);
 
 // =========================================================
 // SUBSCRIPTIONS
@@ -427,32 +394,25 @@ app.use(
 // 404
 // =========================================================
 
-app.use(
-  (req, res) => {
-    console.log(
-      `404 API ROUTE -> ${req.method} ${req.originalUrl}`
-    );
+app.use((req, res) => {
+  console.log(
+    `404 API ROUTE -> ${req.method} ${req.originalUrl}`
+  );
 
-    return res.status(404).json({
-      success: false,
+  return res.status(404).json({
+    success: false,
 
-      error:
-        `API route ${req.method} ${req.originalUrl} not found`,
-    });
-  }
-);
+    error:
+      `API route ${req.method} ${req.originalUrl} not found`,
+  });
+});
 
 // =========================================================
 // GLOBAL ERROR
 // =========================================================
 
 app.use(
-  (
-    error,
-    req,
-    res,
-    next
-  ) => {
+  (error, req, res, next) => {
     console.error(
       "GLOBAL SERVER ERROR:",
       error
@@ -530,7 +490,11 @@ async function startServer() {
         );
 
         console.log(
-          "Database: REAL MONGODB"
+          `Database: ${mongoose.connection.name}`
+        );
+
+        console.log(
+          "Database Mode: REAL MONGODB"
         );
 
         console.log(
@@ -582,6 +546,14 @@ async function startServer() {
         );
 
         console.log(
+          "Owner Auth API: /api/owner/auth"
+        );
+
+        console.log(
+          "Owner Admin API: /api/owner"
+        );
+
+        console.log(
           "=========================================="
         );
 
@@ -593,8 +565,7 @@ async function startServer() {
       "error",
       (error) => {
         if (
-          error.code ===
-          "EADDRINUSE"
+          error.code === "EADDRINUSE"
         ) {
           console.error(
             `Port ${PORT} is already in use. Stop the existing API process before starting another one.`
@@ -631,9 +602,7 @@ startServer();
 // GRACEFUL SHUTDOWN
 // =========================================================
 
-async function shutdown(
-  signal
-) {
+async function shutdown(signal) {
   console.log(
     `\n${signal} received. Shutting down...`
   );
@@ -641,10 +610,7 @@ async function shutdown(
   try {
     if (httpServer) {
       await new Promise(
-        (
-          resolve,
-          reject
-        ) => {
+        (resolve, reject) => {
           httpServer.close(
             (error) => {
               if (
@@ -682,16 +648,18 @@ async function shutdown(
   }
 }
 
+// =========================================================
+// PROCESS SIGNALS
+// =========================================================
+
 process.on(
   "SIGINT",
-  () =>
-    shutdown("SIGINT")
+  () => shutdown("SIGINT")
 );
 
 process.on(
   "SIGTERM",
-  () =>
-    shutdown("SIGTERM")
+  () => shutdown("SIGTERM")
 );
 
 process.once(
