@@ -1,4 +1,7 @@
-import "dotenv/config";
+
+import dotenv from "dotenv";
+dotenv.config({ path: "./.env" });
+
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import Owner from "./models/Owner.js";
@@ -11,13 +14,15 @@ async function createOwner() {
       throw new Error("MONGO_URI is not configured.");
     }
 
+    console.log("Connecting to MongoDB...");
+
     await mongoose.connect(MONGO_URI);
 
     console.log("MongoDB connected.");
 
     const hashedPassword = await bcrypt.hash("Owner@123", 12);
 
-    const owner = await Owner.findOneAndUpdate(
+    await Owner.findOneAndUpdate(
       { username: "owner" },
       {
         username: "owner",
@@ -46,10 +51,18 @@ async function createOwner() {
     console.log("");
 
     await mongoose.connection.close();
+
+    console.log("MongoDB connection closed.");
   } catch (error) {
     console.error("CREATE OWNER ERROR:", error);
+
+    try {
+      await mongoose.connection.close();
+    } catch {}
+
     process.exit(1);
   }
 }
 
 createOwner();
+
