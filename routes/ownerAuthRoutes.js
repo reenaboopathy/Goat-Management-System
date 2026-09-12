@@ -47,6 +47,18 @@ router.post(
           ],
         });
 
+      /* =====================================================
+         TEMPORARY DEBUG
+         This does NOT print the password.
+      ===================================================== */
+
+      console.log("OWNER LOGIN DEBUG:", {
+        loginValue,
+        ownerFound: !!owner,
+        ownerUsername: owner?.username,
+        ownerStatus: owner?.status,
+      });
+
       if (!owner) {
         return res.status(401).json({
           success: false,
@@ -68,6 +80,17 @@ router.post(
           String(password).trim(),
           owner.password
         );
+
+      /* =====================================================
+         TEMPORARY DEBUG
+         Only shows true/false.
+         Password itself is NEVER logged.
+      ===================================================== */
+
+      console.log("OWNER PASSWORD DEBUG:", {
+        passwordMatch,
+        passwordHashExists: !!owner.password,
+      });
 
       if (!passwordMatch) {
         return res.status(401).json({
@@ -309,13 +332,13 @@ router.put(
       const currentPassword =
         String(
           req.body?.currentPassword ||
-            ""
+          ""
         ).trim();
 
       const newPassword =
         String(
           req.body?.newPassword ||
-            ""
+          ""
         ).trim();
 
 
@@ -467,75 +490,6 @@ router.post(
     });
   }
 );
-/* =========================================================
-   TEMP OWNER PASSWORD RESET
-   POST /api/owner/auth/reset-owner
-   Remove this route after successful reset.
-========================================================= */
 
-router.post(
-  "/reset-owner",
-  async (req, res) => {
-    try {
-      const resetKey =
-        req.headers["x-owner-reset-key"];
-
-      if (
-        !process.env.OWNER_RESET_KEY ||
-        resetKey !== process.env.OWNER_RESET_KEY
-      ) {
-        return res.status(403).json({
-          success: false,
-          message: "Invalid reset key.",
-        });
-      }
-
-      const hashedPassword =
-        await bcrypt.hash(
-          "Owner@123",
-          12
-        );
-
-      const owner =
-        await Owner.findOneAndUpdate(
-          { username: "owner" },
-          {
-            $set: {
-              password: hashedPassword,
-              email: "owner@selsolve.com",
-              name: "SelSolve Owner",
-              role: "owner",
-              status: "Active",
-            },
-          },
-          {
-            new: true,
-          }
-        );
-
-      if (!owner) {
-        return res.status(404).json({
-          success: false,
-          message: "Owner account not found.",
-        });
-      }
-
-      return res.json({
-        success: true,
-        message: "Owner password reset successfully.",
-      });
-    } catch (error) {
-      console.error(
-        "OWNER RESET ERROR:",
-        error
-      );
-
-      return res.status(500).json({
-        success: false,
-        message: "Owner reset failed.",
-      });
-    }
-  }
-);
 
 export default router;
